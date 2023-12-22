@@ -29,6 +29,12 @@ public class Commands {
                         Arrays.asList(AccountType.REGULAR, AccountType.CONTRIBUTOR, AccountType.ADMIN),
                         ConsoleApp::showProduction,
                         "Show & filter all productions"
+                ),
+
+                new Command(
+                        Arrays.asList(AccountType.REGULAR, AccountType.CONTRIBUTOR, AccountType.ADMIN),
+                        ConsoleApp::showActors,
+                        "Show all actors, sorted by name"
                 )
         };
     }

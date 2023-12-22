@@ -59,6 +59,16 @@ public class ConsoleApp {
         }
     }
 
+    static void showActors() {
+        for (Actor actor: IMDB.getInstance().getActors()) {
+            System.out.println(
+                    actor.getName() + '\n' +
+                    actor.getBiography() + '\n' +
+                    "Performances: " + actor.getPerformances() + '\n'
+            );
+        }
+    }
+
     static void runConsole() {
         Scanner scanner = new Scanner(System.in);
         User user;

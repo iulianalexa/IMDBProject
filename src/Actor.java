@@ -21,6 +21,11 @@ public class Actor implements Comparable<Object> {
     static private class Performance {
         private String title;
         private ProductionType type;
+
+        @Override
+        public String toString() {
+            return title;
+        }
     }
 
     private Actor() {}
@@ -29,11 +34,20 @@ public class Actor implements Comparable<Object> {
         this.name = name;
         this.biography = biography;
     }
+
     private String name, biography;
     private List<Performance> performances;
 
     public String getName() {
         return this.name;
+    }
+
+    public String getBiography() {
+        return biography;
+    }
+
+    public List<Performance> getPerformances() {
+        return performances;
     }
 
     @Override

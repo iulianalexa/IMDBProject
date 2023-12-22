@@ -21,13 +21,4 @@ public class Rating {
     public Integer getRating() {
         return rating;
     }
-
-    @Override
-    public String toString() {
-        return "Rating{" +
-                "username='" + username + '\'' +
-                ", comment='" + comment + '\'' +
-                ", rating=" + rating +
-                '}';
-    }
 }
