@@ -1,6 +1,6 @@
 public class Rating {
-    public String username, comment;
-    public Integer rating;
+    private String username, comment;
+    private Integer rating;
 
     public Rating() {}
 
@@ -8,5 +8,17 @@ public class Rating {
         this.username = username;
         this.comment = comment;
         this.rating = rating;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public String getComment() {
+        return comment;
+    }
+
+    public Integer getRating() {
+        return rating;
     }
 }

@@ -1,12 +1,41 @@
+import java.util.ArrayList;
 import java.util.List;
 import java.util.SortedSet;
+import java.util.TreeSet;
 
 abstract public class Staff extends User implements StaffInterface {
-    List<Request> requestList;
-    SortedSet<Object> contributions;
+    List<Request> requestList = new ArrayList<>();
+    SortedSet<Object> contributions = new TreeSet<>();
 
     public Staff(UnknownUser unknownUser) {
         super(unknownUser);
+
+        outerloop:
+        for (String productionTitle : unknownUser.getProductionsContribution()) {
+            for (Production currentProduction : IMDB.getInstance().getMovieList()) {
+                if (currentProduction.getTitle().equals(productionTitle)) {
+                    this.contributions.add(currentProduction);
+                    break outerloop;
+                }
+            }
+
+            for (Production currentProduction : IMDB.getInstance().getSeriesList()) {
+                if (currentProduction.getTitle().equals(productionTitle)) {
+                    this.contributions.add(currentProduction);
+                    break outerloop;
+                }
+            }
+        }
+
+        outerloop:
+        for (String actorName : unknownUser.getActorsContribution()) {
+            for (Actor currentActor : IMDB.getInstance().getActors()) {
+                if (currentActor.getName().equals(actorName)) {
+                    this.contributions.add(currentActor);
+                    break outerloop;
+                }
+            }
+        }
     }
 
 

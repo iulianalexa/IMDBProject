@@ -1,4 +1,6 @@
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+
+@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class Episode {
-    String name;
-    Integer duration;
+    private String episodeName, duration;
 }

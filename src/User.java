@@ -1,9 +1,9 @@
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.SortedSet;
@@ -24,26 +24,68 @@ abstract public class User {
         this.experience = unknownUser.experience == null ? 0 : Integer.parseInt(unknownUser.experience);
         this.information = unknownUser.information;
         this.accountType = unknownUser.userType;
+        this.favorites = new TreeSet<>();
 
-        this.favourites = new TreeSet<>();
-        for (String productionName : unknownUser.productionsContribution) {
-            // TODO: Continue
+        outerloop:
+        for (String productionTitle : unknownUser.favoriteProductions) {
+            for (Production currentProduction : IMDB.getInstance().getMovieList()) {
+                if (currentProduction.getTitle().equals(productionTitle)) {
+                    this.favorites.add(currentProduction);
+                    break outerloop;
+                }
+            }
+
+            for (Production currentProduction : IMDB.getInstance().getSeriesList()) {
+                if (currentProduction.getTitle().equals(productionTitle)) {
+                    this.favorites.add(currentProduction);
+                    break outerloop;
+                }
+            }
+        }
+
+        outerloop:
+        for (String actorName : unknownUser.favoriteActors) {
+            for (Actor currentActor : IMDB.getInstance().getActors()) {
+                if (currentActor.getName().equals(actorName)) {
+                    this.favorites.add(currentActor);
+                    break outerloop;
+                }
+            }
         }
     }
 
+    @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
     public static class UnknownUser {
-        public String username, experience;
-        public Information information;
-        public AccountType userType;
-        public List<String> productionsContribution, actorsContribution, favoriteProductions, favoriteActors, notifications;
+        private String username, experience;
+        private Information information;
+        private AccountType userType;
+        private List<String> productionsContribution = new ArrayList<>();
+        private List<String> actorsContribution = new ArrayList<>();
+        private List<String> favoriteProductions = new ArrayList<>();
+        private List<String> favoriteActors = new ArrayList<>();
+        private List<String> notifications = new ArrayList<>();
+
+        public List<String> getProductionsContribution() {
+            return productionsContribution;
+        }
+
+        public List<String> getActorsContribution() {
+            return actorsContribution;
+        }
+
+        public AccountType getUserType() {
+            return this.userType;
+        }
     }
 
+    @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
     @JsonDeserialize(builder = Information.InformationBuilder.class)
     private static class Information {
+        @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
         private static class Credentials {
-            public String email, password;
+            private String email, password;
 
-            public Credentials() {}
+            private Credentials() {}
 
             public Credentials(String email, String password) {
                 this.email = email;
@@ -51,10 +93,10 @@ abstract public class User {
             }
         }
 
-        public Credentials credentials;
-        public String name, country, birthDate;
-        public String gender;
-        public Integer age;
+        private Credentials credentials;
+        private String name, country, birthDate;
+        private String gender;
+        private Integer age;
 
         private Information(Credentials credentials, String name, String country, String gender, Integer age, String birthDate) {
             this.credentials = credentials;
@@ -73,6 +115,7 @@ abstract public class User {
             return this.name;
         }
 
+
         public String getCountry() {
             return this.country;
         }
@@ -87,9 +130,9 @@ abstract public class User {
 
         @JsonPOJOBuilder(withPrefix = "")
         public static class InformationBuilder {
-            Credentials credentials;
-            String name, country, birthDate, gender;
-            Integer age;
+            private Credentials credentials;
+            private String name, country, birthDate, gender;
+            private Integer age;
 
             void credentials(Credentials credentials) {
                 this.credentials = credentials;
@@ -121,26 +164,50 @@ abstract public class User {
         }
     }
 
-    Information information;
-    AccountType accountType;
-    String username;
-    int experience;
-    List<String> notificationList;
-    SortedSet<Object> favourites;
+    private Information information;
+    private AccountType accountType;
+    private String username;
+    private int experience;
+    private List<String> notificationList;
+    private SortedSet<Object> favorites;
 
-    void addToFavourites(Object toAdd) {
-        this.favourites.add(toAdd);
+    public Information getInformation() {
+        return information;
     }
 
-    void removeFromFavourites(Object toRemove) {
-        this.favourites.remove(toRemove);
+    public AccountType getAccountType() {
+        return accountType;
     }
 
-    void setExperience(int experience) {
+    public String getUsername() {
+        return username;
+    }
+
+    public int getExperience() {
+        return experience;
+    }
+
+    public List<String> getNotificationList() {
+        return notificationList;
+    }
+
+    public SortedSet<Object> getFavorites() {
+        return favorites;
+    }
+
+    public void addToFavourites(Object toAdd) {
+        this.favorites.add(toAdd);
+    }
+
+    public void removeFromFavourites(Object toRemove) {
+        this.favorites.remove(toRemove);
+    }
+
+    public void setExperience(int experience) {
         this.experience = experience;
     }
 
-    void logout() {
+    public void logout() {
         // TODO
     }
 }

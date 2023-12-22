@@ -14,8 +14,7 @@ public class Regular extends User implements RequestsManager {
     }
 
     void rate(Production production, Integer score, String comment) {
-        Rating rating = new Rating(this.username, comment, score);
-        production.ratings.add(rating);
-        production.updateScore();
+        Rating rating = new Rating(this.getUsername(), comment, score);
+        production.addRating(rating);
     }
 }

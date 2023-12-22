@@ -1,6 +1,14 @@
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.JacksonException;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
+import java.io.IOException;
+import java.io.InvalidClassException;
+import java.util.ArrayList;
 import java.util.List;
 
 enum ProductionType {
@@ -36,32 +44,80 @@ enum Genre {
     @JsonProperty("Biography")
     BIOGRAPHY,
     @JsonProperty("War")
-    WAR
+    WAR,
+    @JsonProperty("Cooking")
+    COOKING
 }
-abstract public class Production implements Comparable<Production> {
-    public String title, description;
-    public List<String> directors, actors;
-    public List<Genre> genres;
-    public List<Rating> ratings;
-    public Double score;
-    public ProductionType type;
+
+@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
+abstract public class Production implements Comparable<Object> {
+    private String title, plot;
+    private List<String> directors = new ArrayList<>();
+
+    @JsonDeserialize(using = CustomProductionDeserializer.class)
+    private List<Actor> actors = new ArrayList<>();
+    private List<Genre> genres = new ArrayList<>();
+    private List<Rating> ratings = new ArrayList<>();
+    private Double averageRating = 0.0;
+    private ProductionType type;
+
+    public String getTitle() {
+        return title;
+    }
 
     public abstract void displayInfo();
 
     @Override
-    public int compareTo(Production production) {
-        return this.title.compareTo(production.title);
+    public int compareTo(Object object) {
+        if (object instanceof Production production) {
+            return this.title.compareTo(production.title);
+        }
+
+        if (object instanceof Actor actor) {
+            return this.title.compareTo(actor.getName());
+        }
+
+        throw new RuntimeException();
     }
 
-    public void updateScore() {
+    private void updateScore() {
         if (this.ratings.isEmpty()) {
-            this.score = null;
+            this.averageRating = null;
         } else {
             Integer total = 0;
             for (Rating rating : this.ratings) {
-                total += rating.rating;
+                total += rating.getRating();
             }
-            this.score = (double) total / this.ratings.size();
+            this.averageRating = (double) total / this.ratings.size();
         }
+    }
+
+    public void addRating(Rating rating) {
+        this.ratings.add(rating);
+        this.updateScore();
+    }
+}
+
+class CustomProductionDeserializer extends JsonDeserializer<List<Actor>> {
+    @Override
+    public List<Actor> deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException, JacksonException {
+        List<Actor> actors = new ArrayList<>();
+        String actorName;
+
+        while ((actorName = jsonParser.nextTextValue()) != null) {
+            Actor actor = new Actor(actorName, null);
+            for (Actor currentActor : IMDB.getInstance().getActors()) {
+                if (currentActor.getName().equals(actorName)) {
+                    actor = currentActor;
+                    break;
+                }
+            }
+            actors.add(actor);
+            IMDB.getInstance().addActor(actor);
+        }
+
+        // TODO: Notify admins of null
+
+        return actors;
     }
 }
