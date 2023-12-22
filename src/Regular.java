@@ -1,4 +1,8 @@
 public class Regular extends User implements RequestsManager {
+    public Regular(User.UnknownUser unknownUser) {
+        super(unknownUser);
+    }
+
     @Override
     public void createRequest(Request r) {
         // TODO

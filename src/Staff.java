@@ -5,6 +5,10 @@ abstract public class Staff extends User implements StaffInterface {
     List<Request> requestList;
     SortedSet<Object> contributions;
 
+    public Staff(UnknownUser unknownUser) {
+        super(unknownUser);
+    }
+
 
     @Override
     public void addProductionSystem(Production p) {
