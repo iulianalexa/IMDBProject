@@ -1,10 +1,12 @@
 public class Rating {
-    String username, comment;
-    Integer score;
+    public String username, comment;
+    public Integer rating;
 
-    public Rating(String username, String comment, Integer score) {
+    public Rating() {}
+
+    public Rating(String username, String comment, Integer rating) {
         this.username = username;
         this.comment = comment;
-        this.score = score;
+        this.rating = rating;
     }
 }

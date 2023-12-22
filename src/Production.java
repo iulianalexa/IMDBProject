@@ -1,14 +1,50 @@
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+
 import java.util.List;
 
+enum ProductionType {
+    @JsonProperty("Movie")
+    MOVIE,
+    @JsonProperty("Series")
+    SERIES
+}
+
 enum Genre {
-    ACTION, ADVENTURE, COMEDY, DRAMA, HORROR, SF, FANTASY, ROMANCE, MYSTERY, THRILLER, CRIME, BIOGRAPHY, WAR
+    @JsonProperty("Action")
+    ACTION,
+    @JsonProperty("Adventure")
+    ADVENTURE,
+    @JsonProperty("Comedy")
+    COMEDY,
+    @JsonProperty("Drama")
+    DRAMA,
+    @JsonProperty("Horror")
+    HORROR,
+    @JsonProperty("SF")
+    SF,
+    @JsonProperty("Fantasy")
+    FANTASY,
+    @JsonProperty("Romance")
+    ROMANCE,
+    @JsonProperty("Mystery")
+    MYSTERY,
+    @JsonProperty("Thriller")
+    THRILLER,
+    @JsonProperty("Crime")
+    CRIME,
+    @JsonProperty("Biography")
+    BIOGRAPHY,
+    @JsonProperty("War")
+    WAR
 }
 abstract public class Production implements Comparable<Production> {
-    String title, description;
-    List<String> producers, actors;
-    List<Genre> genres;
-    List<Rating> ratings;
-    Double score;
+    public String title, description;
+    public List<String> directors, actors;
+    public List<Genre> genres;
+    public List<Rating> ratings;
+    public Double score;
+    public ProductionType type;
 
     public abstract void displayInfo();
 
@@ -23,7 +59,7 @@ abstract public class Production implements Comparable<Production> {
         } else {
             Integer total = 0;
             for (Rating rating : this.ratings) {
-                total += rating.score;
+                total += rating.rating;
             }
             this.score = (double) total / this.ratings.size();
         }
