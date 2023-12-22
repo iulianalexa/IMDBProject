@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Scanner;
+import java.util.stream.Stream;
 
 public class IMDB {
     private static IMDB obj = new IMDB();
@@ -97,9 +99,30 @@ public class IMDB {
         }
     }
 
+    User getUser(String username) {
+        List<User> users = new ArrayList<>(regulars);
+        users.addAll(contributors);
+        users.addAll(admins);
+
+        for (User user : users) {
+            if (user.getUsername().equals(username)) {
+                return user;
+            }
+        }
+
+        return null;
+    }
+
     public void run() throws IOException {
+        Boolean noGui = true;
+
+        // Load input data
         this.readActors();
         this.readProductions();
         this.readUsers();
+
+        if (noGui) {
+            ConsoleApp.runConsole();
+        }
     }
 }

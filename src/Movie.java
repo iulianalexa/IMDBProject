@@ -1,17 +1,22 @@
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.core.JacksonException;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-
-import java.io.IOException;
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class Movie extends Production {
     private Integer releaseYear;
     private String duration;
+
     @Override
     public void displayInfo() {
-        // TODO
+        System.out.println(
+                "Title: " + super.getTitle() + '\n' +
+                "Plot: " + super.getPlot() + '\n' +
+                "Directors: " + super.getDirectors() + '\n' +
+                "Actors: " + super.getActors() + '\n' +
+                "Genres: " + super.getGenres() + '\n' +
+                "Average Rating: " + super.getAverageRating() + '\n' +
+                "Type: " + super.getType() + '\n' +
+                "Release Year: " + releaseYear + '\n' +
+                "Duration: " + duration + '\n'
+        );
     }
 }

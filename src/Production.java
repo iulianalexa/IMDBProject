@@ -61,8 +61,40 @@ abstract public class Production implements Comparable<Object> {
     private Double averageRating = 0.0;
     private ProductionType type;
 
+    public Integer getReviewCount() {
+        return this.ratings.size();
+    }
+
     public String getTitle() {
         return title;
+    }
+
+    public String getPlot() {
+        return plot;
+    }
+
+    public List<String> getDirectors() {
+        return directors;
+    }
+
+    public List<Actor> getActors() {
+        return actors;
+    }
+
+    public List<Rating> getRatings() {
+        return ratings;
+    }
+
+    public Double getAverageRating() {
+        return averageRating;
+    }
+
+    public ProductionType getType() {
+        return type;
+    }
+
+    public List<Genre> getGenres() {
+        return genres;
     }
 
     public abstract void displayInfo();

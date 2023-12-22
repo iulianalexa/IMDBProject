@@ -107,55 +107,40 @@ abstract public class User {
             this.birthDate = birthDate;
         }
 
-        public Credentials getCredentials() {
-            return this.credentials;
-        }
-
-        public String getName() {
-            return this.name;
-        }
-
-
-        public String getCountry() {
-            return this.country;
-        }
-
-        public String getGender() {
-            return this.gender;
-        }
-
-        public Integer getAge() {
-            return this.age;
-        }
-
         @JsonPOJOBuilder(withPrefix = "")
         public static class InformationBuilder {
             private Credentials credentials;
             private String name, country, birthDate, gender;
             private Integer age;
 
-            void credentials(Credentials credentials) {
+            InformationBuilder credentials(Credentials credentials) {
                 this.credentials = credentials;
+                return this;
             }
 
-            void name(String name) {
+            InformationBuilder name(String name) {
                 this.name = name;
+                return this;
             }
 
-            void country(String country) {
+            InformationBuilder country(String country) {
                 this.country = country;
+                return this;
             }
 
-            void gender(String gender) {
+            InformationBuilder gender(String gender) {
                 this.gender = gender;
+                return this;
             }
 
-            void age(Integer age) {
+            InformationBuilder age(Integer age) {
                 this.age = age;
+                return this;
             }
 
-            void birthDate(String birthDate) {
+            InformationBuilder birthDate(String birthDate) {
                 this.birthDate = birthDate;
+                return this;
             }
 
             Information build() {
@@ -170,6 +155,10 @@ abstract public class User {
     private int experience;
     private List<String> notificationList;
     private SortedSet<Object> favorites;
+
+    public Boolean checkPassword(String password) {
+        return this.information.credentials.password.equals(password);
+    }
 
     public Information getInformation() {
         return information;
