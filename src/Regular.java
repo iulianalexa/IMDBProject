@@ -1,4 +1,4 @@
-public class Regular extends User implements RequestsManager {
+public class Regular<T extends Comparable<Object>> extends User<T> implements RequestsManager {
     public Regular(User.UnknownUser unknownUser) {
         super(unknownUser);
     }

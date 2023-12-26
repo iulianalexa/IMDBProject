@@ -35,6 +35,24 @@ public class Commands {
                         Arrays.asList(AccountType.REGULAR, AccountType.CONTRIBUTOR, AccountType.ADMIN),
                         ConsoleApp::showActors,
                         "Show all actors, sorted by name"
+                ),
+
+                new Command(
+                        Arrays.asList(AccountType.REGULAR, AccountType.CONTRIBUTOR, AccountType.ADMIN),
+                        ConsoleApp::showNotifications,
+                        "Show all notifications for the current user"
+                ),
+
+                new Command(
+                        Arrays.asList(AccountType.REGULAR, AccountType.CONTRIBUTOR, AccountType.ADMIN),
+                        ConsoleApp::searchSpecific,
+                        "Search for a specific movie/series/actor"
+                ),
+
+                new Command(
+                        Arrays.asList(AccountType.REGULAR, AccountType.CONTRIBUTOR, AccountType.ADMIN),
+                        ConsoleApp::updateFavorites,
+                        "Update list of favorites for the current user"
                 )
         };
     }

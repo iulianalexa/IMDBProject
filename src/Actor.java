@@ -1,5 +1,6 @@
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
@@ -36,7 +37,7 @@ public class Actor implements Comparable<Object> {
     }
 
     private String name, biography;
-    private List<Performance> performances;
+    private List<Performance> performances = new ArrayList<>();
 
     public String getName() {
         return this.name;
@@ -53,5 +54,18 @@ public class Actor implements Comparable<Object> {
     @Override
     public String toString() {
         return name;
+    }
+
+    public void displayFullInfo() {
+        StringBuilder s = new StringBuilder();
+
+        s.append("Name: ").append(this.name).append('\n');
+        s.append("Biography: ").append(this.biography).append('\n');
+        s.append("Performances: " + '\n');
+        for (Performance performance : this.performances) {
+            s.append(performance.title).append(" (").append(performance.type).append(")\n");
+        }
+
+        System.out.println(s);
     }
 }

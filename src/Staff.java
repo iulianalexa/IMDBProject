@@ -3,7 +3,7 @@ import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-abstract public class Staff extends User implements StaffInterface {
+abstract public class Staff<T extends Comparable<Object>> extends User<T> implements StaffInterface {
     List<Request> requestList = new ArrayList<>();
     SortedSet<Object> contributions = new TreeSet<>();
 

@@ -1,4 +1,4 @@
-public class Contributor extends Staff implements RequestsManager {
+public class Contributor<T extends Comparable<Object>> extends Staff<T> implements RequestsManager {
     public Contributor(User.UnknownUser unknownUser) {
         super(unknownUser);
     }

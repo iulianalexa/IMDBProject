@@ -1,4 +1,4 @@
-public class Admin extends Staff {
+public class Admin<T extends Comparable<Object>> extends Staff<T> {
     public Admin(User.UnknownUser unknownUser) {
         super(unknownUser);
     }

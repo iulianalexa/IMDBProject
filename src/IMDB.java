@@ -12,10 +12,11 @@ import java.util.stream.Stream;
 
 public class IMDB {
     private static IMDB obj = new IMDB();
+    private User<?> currentUser = null;
 
-    private List<Regular> regulars = new ArrayList<>();
-    private List<Contributor> contributors = new ArrayList<>();
-    private List<Admin> admins = new ArrayList<>();
+    private List<Regular<?>> regulars = new ArrayList<>();
+    private List<Contributor<?>> contributors = new ArrayList<>();
+    private List<Admin<?>> admins = new ArrayList<>();
 
     private List<Actor> actors = new ArrayList<>();
     private List<Request> requestList = new ArrayList<>();
@@ -26,15 +27,15 @@ public class IMDB {
         return obj;
     }
 
-    public List<Regular> getRegulars() {
+    public List<Regular<?>> getRegulars() {
         return regulars;
     }
 
-    public List<Contributor> getContributors() {
+    public List<Contributor<?>> getContributors() {
         return contributors;
     }
 
-    public List<Admin> getAdmins() {
+    public List<Admin<?>> getAdmins() {
         return admins;
     }
 
@@ -78,33 +79,41 @@ public class IMDB {
         this.actors = mapper.readValue(new File("input/actors.json"), new TypeReference<List<Actor>>() {});
     }
 
+    public User<?> getCurrentUser() {
+        return this.currentUser;
+    }
+
+    public void setCurrentUser(User<?> currentUser) {
+        this.currentUser = currentUser;
+    }
+
     private void readUsers() throws IOException {
         ObjectMapper mapper = new ObjectMapper();
         List<User.UnknownUser> unknownUserList = mapper.readValue(new File("input/accounts.json"), new TypeReference<List<User.UnknownUser>>() {});
         for (User.UnknownUser unknownUser : unknownUserList) {
-            User user = UserFactory.factory(unknownUser);
+            User<?> user = UserFactory.factory(unknownUser);
             switch (Objects.requireNonNull(user).getAccountType()) {
                 case REGULAR -> {
-                    this.regulars.add((Regular) user);
+                    this.regulars.add((Regular<?>) user);
                 }
 
                 case CONTRIBUTOR -> {
-                    this.contributors.add((Contributor) user);
+                    this.contributors.add((Contributor<?>) user);
                 }
 
                 case ADMIN -> {
-                    this.admins.add((Admin) user);
+                    this.admins.add((Admin<?>) user);
                 }
             }
         }
     }
 
-    User getUser(String username) {
-        List<User> users = new ArrayList<>(regulars);
+    User<?> getUser(String username) {
+        List<User<?>> users = new ArrayList<User<?>>(regulars);
         users.addAll(contributors);
         users.addAll(admins);
 
-        for (User user : users) {
+        for (User<?> user : users) {
             if (user.getUsername().equals(username)) {
                 return user;
             }
@@ -113,8 +122,47 @@ public class IMDB {
         return null;
     }
 
+    Movie searchForMovie(String title) {
+        for (Movie movie : movieList) {
+            if (movie.getTitle().equalsIgnoreCase(title)) {
+                return movie;
+            }
+        }
+
+        return null;
+    }
+
+    Series searchForSeries(String title) {
+        for (Series series : seriesList) {
+            if (series.getTitle().equalsIgnoreCase(title)) {
+                return series;
+            }
+        }
+
+        return null;
+    }
+
+    Production searchForProduction(String title) {
+        Movie movie = searchForMovie(title);
+        if (movie != null) {
+            return movie;
+        }
+
+        return searchForSeries(title);
+    }
+
+    Actor searchForActor(String name) {
+        for (Actor actor : actors) {
+            if (actor.getName().equalsIgnoreCase(name)) {
+                return actor;
+            }
+        }
+
+        return null;
+    }
+
     public void run() throws IOException {
-        Boolean noGui = true;
+        boolean noGui = true;
 
         // Load input data
         this.readActors();

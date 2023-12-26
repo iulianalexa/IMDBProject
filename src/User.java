@@ -18,26 +18,27 @@ enum AccountType {
     ADMIN
 }
 
-abstract public class User {
+abstract public class User<T extends Comparable<Object>> {
     public User(UnknownUser unknownUser) {
         this.username = unknownUser.username;
         this.experience = unknownUser.experience == null ? 0 : Integer.parseInt(unknownUser.experience);
         this.information = unknownUser.information;
         this.accountType = unknownUser.userType;
+        this.notificationList = unknownUser.notifications;
         this.favorites = new TreeSet<>();
 
         outerloop:
         for (String productionTitle : unknownUser.favoriteProductions) {
             for (Production currentProduction : IMDB.getInstance().getMovieList()) {
                 if (currentProduction.getTitle().equals(productionTitle)) {
-                    this.favorites.add(currentProduction);
+                    ((User<Production>) this).favorites.add(currentProduction);
                     break outerloop;
                 }
             }
 
             for (Production currentProduction : IMDB.getInstance().getSeriesList()) {
                 if (currentProduction.getTitle().equals(productionTitle)) {
-                    this.favorites.add(currentProduction);
+                    ((User<Production>) this).favorites.add(currentProduction);
                     break outerloop;
                 }
             }
@@ -47,7 +48,7 @@ abstract public class User {
         for (String actorName : unknownUser.favoriteActors) {
             for (Actor currentActor : IMDB.getInstance().getActors()) {
                 if (currentActor.getName().equals(actorName)) {
-                    this.favorites.add(currentActor);
+                    ((User<Actor>) this).favorites.add(currentActor);
                     break outerloop;
                 }
             }
@@ -154,7 +155,7 @@ abstract public class User {
     private String username;
     private int experience;
     private List<String> notificationList;
-    private SortedSet<Object> favorites;
+    private SortedSet<T> favorites;
 
     public Boolean checkPassword(String password) {
         return this.information.credentials.password.equals(password);
@@ -180,15 +181,15 @@ abstract public class User {
         return notificationList;
     }
 
-    public SortedSet<Object> getFavorites() {
+    public SortedSet<T> getFavorites() {
         return favorites;
     }
 
-    public void addToFavourites(Object toAdd) {
+    public void addToFavourites(T toAdd) {
         this.favorites.add(toAdd);
     }
 
-    public void removeFromFavourites(Object toRemove) {
+    public void removeFromFavourites(T toRemove) {
         this.favorites.remove(toRemove);
     }
 
