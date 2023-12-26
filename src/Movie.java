@@ -5,6 +5,16 @@ public class Movie extends Production {
     private Integer releaseYear;
     private String duration;
 
+    Movie() {
+        this("", "", "", 0);
+    }
+
+    public Movie(String title, String description, String duration, int releaseYear) {
+        super(title, description, ProductionType.MOVIE);
+        this.duration = duration;
+        this.releaseYear = releaseYear;
+    }
+
     @Override
     public void displayInfo() {
         System.out.println(

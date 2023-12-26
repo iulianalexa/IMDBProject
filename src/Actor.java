@@ -29,6 +29,8 @@ public class Actor implements Comparable<Object> {
         }
     }
 
+    private String addedBy = null;
+
     private Actor() {}
 
     public Actor(String name, String biography) {
@@ -51,6 +53,14 @@ public class Actor implements Comparable<Object> {
         return performances;
     }
 
+    public String getAddedBy() {
+        return addedBy;
+    }
+
+    public void setAddedBy(String addedBy) {
+        this.addedBy = addedBy;
+    }
+
     @Override
     public String toString() {
         return name;
@@ -60,10 +70,15 @@ public class Actor implements Comparable<Object> {
         StringBuilder s = new StringBuilder();
 
         s.append("Name: ").append(this.name).append('\n');
-        s.append("Biography: ").append(this.biography).append('\n');
-        s.append("Performances: " + '\n');
-        for (Performance performance : this.performances) {
-            s.append(performance.title).append(" (").append(performance.type).append(")\n");
+        if (this.biography != null) {
+            s.append("Biography: ").append(this.biography).append('\n');
+        }
+
+        if (!this.performances.isEmpty()) {
+            s.append("Performances: " + '\n');
+            for (Performance performance : this.performances) {
+                s.append(performance.title).append(" (").append(performance.type).append(")\n");
+            }
         }
 
         System.out.println(s);

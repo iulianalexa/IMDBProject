@@ -59,6 +59,26 @@ public class IMDB {
         this.actors.add(actor);
     }
 
+    public void addMovie(Movie movie) {
+        this.movieList.add(movie);
+    }
+
+    public void addSeries(Series series) {
+        this.seriesList.add(series);
+    }
+
+    public void removeMovie(Movie movie) {
+        this.movieList.remove(movie);
+    }
+
+    public void removeSeries(Series series) {
+        this.seriesList.remove(series);
+    }
+
+    public void removeActor(Actor actor) {
+        this.actors.remove(actor);
+    }
+
     private void readProductions() throws IOException {
         ObjectMapper mapper = new ObjectMapper();
         List<JsonNode> jsonNodeList = mapper.readValue(new File("input/production.json"), new TypeReference<List<JsonNode>>() {});
@@ -83,6 +103,14 @@ public class IMDB {
         return this.currentUser;
     }
 
+    public void addRequest(Request request) {
+        this.requestList.add(request);
+    }
+
+    public void removeRequest(Request request) {
+        this.requestList.remove(request);
+    }
+
     public void setCurrentUser(User<?> currentUser) {
         this.currentUser = currentUser;
     }
@@ -105,6 +133,19 @@ public class IMDB {
                     this.admins.add((Admin<?>) user);
                 }
             }
+        }
+    }
+
+    private void readRequests() throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
+        List<Request> requests = mapper.readValue(new File("input/requests.json"), new TypeReference<List<Request>>() {});
+        for (Request request : requests) {
+            User<?> author = getUser(request.getAuthorUsername());
+            if (!(author instanceof RequestsManager requestsManager)) {
+                continue;
+            }
+
+            requestsManager.createRequest(request);
         }
     }
 
@@ -168,6 +209,7 @@ public class IMDB {
         this.readActors();
         this.readProductions();
         this.readUsers();
+        this.readRequests();
 
         if (noGui) {
             ConsoleApp.runConsole();

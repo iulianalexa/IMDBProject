@@ -19,7 +19,7 @@ enum AccountType {
 }
 
 abstract public class User<T extends Comparable<Object>> {
-    public User(UnknownUser unknownUser) {
+    User(UnknownUser unknownUser) {
         this.username = unknownUser.username;
         this.experience = unknownUser.experience == null ? 0 : Integer.parseInt(unknownUser.experience);
         this.information = unknownUser.information;

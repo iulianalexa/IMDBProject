@@ -11,13 +11,6 @@ import java.io.InvalidClassException;
 import java.util.ArrayList;
 import java.util.List;
 
-enum ProductionType {
-    @JsonProperty("Movie")
-    MOVIE,
-    @JsonProperty("Series")
-    SERIES
-}
-
 enum Genre {
     @JsonProperty("Action")
     ACTION,
@@ -53,6 +46,8 @@ enum Genre {
 abstract public class Production implements Comparable<Object> {
     private String title, plot;
     private List<String> directors = new ArrayList<>();
+
+    private String addedBy = null;
 
     @JsonDeserialize(using = CustomProductionDeserializer.class)
     private List<Actor> actors = new ArrayList<>();
@@ -99,6 +94,15 @@ abstract public class Production implements Comparable<Object> {
 
     public abstract void displayInfo();
 
+    Production() {}
+
+    public Production(String title, String description, ProductionType type) {
+        this();
+        this.title = title;
+        this.plot = description;
+        this.type = type;
+    }
+
     @Override
     public int compareTo(Object object) {
         if (object instanceof Production production) {
@@ -128,6 +132,14 @@ abstract public class Production implements Comparable<Object> {
         this.ratings.add(rating);
         this.updateScore();
     }
+
+    public String getAddedBy() {
+        return addedBy;
+    }
+
+    public void setAddedBy(String addedBy) {
+        this.addedBy = addedBy;
+    }
 }
 
 class CustomProductionDeserializer extends JsonDeserializer<List<Actor>> {
@@ -137,15 +149,13 @@ class CustomProductionDeserializer extends JsonDeserializer<List<Actor>> {
         String actorName;
 
         while ((actorName = jsonParser.nextTextValue()) != null) {
-            Actor actor = new Actor(actorName, null);
-            for (Actor currentActor : IMDB.getInstance().getActors()) {
-                if (currentActor.getName().equals(actorName)) {
-                    actor = currentActor;
-                    break;
-                }
+            Actor actor = IMDB.getInstance().searchForActor(actorName);
+            if (actor == null) {
+                actor = new Actor(actorName, null);
+                IMDB.getInstance().addActor(actor);
             }
+
             actors.add(actor);
-            IMDB.getInstance().addActor(actor);
         }
 
         // TODO: Notify admins of null

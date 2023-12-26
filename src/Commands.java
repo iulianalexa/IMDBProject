@@ -1,21 +1,22 @@
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.Callable;
 
 public class Commands {
     public static class Command {
         private final List<AccountType> allowedTypes;
-        private final Runnable executor;
+        private final Callable<Integer> executor;
         private final String description;
 
-        public Command(List<AccountType> allowedTypes, Runnable executor, String description) {
+        public Command(List<AccountType> allowedTypes, Callable<Integer> executor, String description) {
             this.allowedTypes = allowedTypes;
             this.executor = executor;
             this.description = description;
         }
 
-        public void execute() {
-            this.executor.run();
+        public void execute() throws Exception {
+            this.executor.call();
         }
 
         public String getDescription() {
@@ -53,6 +54,18 @@ public class Commands {
                         Arrays.asList(AccountType.REGULAR, AccountType.CONTRIBUTOR, AccountType.ADMIN),
                         ConsoleApp::updateFavorites,
                         "Update list of favorites for the current user"
+                ),
+
+                new Command(
+                        Arrays.asList(AccountType.REGULAR, AccountType.CONTRIBUTOR),
+                        ConsoleApp::manageRequests,
+                        "Manage requests"
+                ),
+
+                new Command(
+                        Arrays.asList(AccountType.CONTRIBUTOR, AccountType.ADMIN),
+                        ConsoleApp::manageActorsAndProductions,
+                        "Manage actors and productions"
                 )
         };
     }

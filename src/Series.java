@@ -11,6 +11,16 @@ public class Series extends Production {
     @JsonProperty("seasons")
     private Map<String, List<Episode>> episodes;
 
+    Series() {
+        this("", "", 0, 0);
+    }
+
+    public Series(String title, String description, int releaseYear, int numSeasons) {
+        super(title, description, ProductionType.SERIES);
+        this.releaseYear = releaseYear;
+        this.numSeasons = numSeasons;
+    }
+
     @Override
     public void displayInfo() {
         System.out.println(

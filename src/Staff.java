@@ -4,8 +4,8 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 abstract public class Staff<T extends Comparable<Object>> extends User<T> implements StaffInterface {
-    List<Request> requestList = new ArrayList<>();
-    SortedSet<Object> contributions = new TreeSet<>();
+    private List<Request> requestList = new ArrayList<>();
+    private SortedSet<Object> contributions = new TreeSet<>();
 
     public Staff(UnknownUser unknownUser) {
         super(unknownUser);
@@ -41,36 +41,83 @@ abstract public class Staff<T extends Comparable<Object>> extends User<T> implem
 
     @Override
     public void addProductionSystem(Production p) {
-        // TODO
+        if (p instanceof Movie movie) {
+            IMDB.getInstance().addMovie(movie);
+        } else if (p instanceof Series series) {
+            IMDB.getInstance().addSeries(series);
+        }
     }
 
     @Override
     public void addActorSystem(Actor a) {
-        // TODO
+        IMDB.getInstance().addActor(a);
     }
 
     @Override
     public void removeProductionSystem(String name) {
-        // TODO
+        Production production = IMDB.getInstance().searchForProduction(name);
+        if (production == null) {
+            return;
+        }
+
+        if (production instanceof Movie movie) {
+            IMDB.getInstance().removeMovie(movie);
+        } else if (production instanceof Series series) {
+            IMDB.getInstance().removeSeries(series);
+        }
     }
 
     @Override
     public void removeActorSystem(String name) {
-        // TODO
+        Actor actor = IMDB.getInstance().searchForActor(name);
+        if (actor == null) {
+            return;
+        }
+
+        IMDB.getInstance().removeActor(actor);
     }
 
     @Override
     public void updateProduction(Production p) {
-        // TODO
+        Production currentProd = IMDB.getInstance().searchForProduction(p.getTitle());
+        if (currentProd == null) {
+            return;
+        }
+
+        if (p instanceof Movie m && currentProd instanceof Movie currentMovie) {
+            IMDB.getInstance().removeMovie(currentMovie);
+            IMDB.getInstance().addMovie(m);
+        } else if (p instanceof Series s && currentProd instanceof Series currentSeries) {
+            IMDB.getInstance().removeSeries(currentSeries);
+            IMDB.getInstance().addSeries(s);
+        }
     }
 
     @Override
     public void updateActor(Actor a) {
-        // TODO
+        Actor currentActor = IMDB.getInstance().searchForActor(a.getName());
+        if (currentActor == null) {
+            return;
+        }
+
+        IMDB.getInstance().removeActor(currentActor);
+        IMDB.getInstance().addActor(a);
     }
 
     @Override
     public void solveRequests() {
         // TODO
+    }
+
+    public List<Request> getRequestList() {
+        return requestList;
+    }
+
+    public void addRequest(Request request) {
+        this.requestList.add(request);
+    }
+
+    public void removeRequest(Request request) {
+        this.requestList.remove(request);
     }
 }
