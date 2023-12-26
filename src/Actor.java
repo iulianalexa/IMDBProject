@@ -27,6 +27,14 @@ public class Actor implements Comparable<Object> {
         public String toString() {
             return title;
         }
+
+        private Performance() {}
+
+        public Performance(String title, ProductionType type) {
+            this();
+            this.title = title;
+            this.type = type;
+        }
     }
 
     private String addedBy = null;
@@ -59,6 +67,10 @@ public class Actor implements Comparable<Object> {
 
     public void setAddedBy(String addedBy) {
         this.addedBy = addedBy;
+    }
+
+    public void addPerformance(String title, ProductionType type) {
+        this.performances.add(new Performance(title, type));
     }
 
     @Override

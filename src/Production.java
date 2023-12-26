@@ -158,8 +158,6 @@ class CustomProductionDeserializer extends JsonDeserializer<List<Actor>> {
             actors.add(actor);
         }
 
-        // TODO: Notify admins of null
-
         return actors;
     }
 }

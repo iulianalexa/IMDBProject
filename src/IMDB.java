@@ -84,12 +84,24 @@ public class IMDB {
         List<JsonNode> jsonNodeList = mapper.readValue(new File("input/production.json"), new TypeReference<List<JsonNode>>() {});
         for (JsonNode jsonNode : jsonNodeList) {
             ProductionType type = mapper.treeToValue(jsonNode.get("type"), ProductionType.class);
+            Production production = null;
             if (type == ProductionType.MOVIE) {
                 Movie movie = mapper.treeToValue(jsonNode, Movie.class);
                 movieList.add(movie);
+                production = movie;
             } else if (type == ProductionType.SERIES) {
                 Series series = mapper.treeToValue(jsonNode, Series.class);
                 seriesList.add(series);
+                production = series;
+            }
+
+            if (production != null) {
+                for (Actor actor : production.getActors()) {
+                    // Make sure each actor has at least one performance
+                    if (actor.getPerformances().isEmpty()) {
+                        actor.addPerformance(production.getTitle(), production.getType());
+                    }
+                }
             }
         }
     }
@@ -214,5 +226,9 @@ public class IMDB {
         if (noGui) {
             ConsoleApp.runConsole();
         }
+    }
+
+    public void logout() {
+        obj = new IMDB();
     }
 }

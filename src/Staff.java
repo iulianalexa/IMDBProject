@@ -105,8 +105,17 @@ abstract public class Staff<T extends Comparable<Object>> extends User<T> implem
     }
 
     @Override
-    public void solveRequests() {
-        // TODO
+    public void closeRequest(Request request) {
+        // TODO: Notify
+        this.requestList.remove(request);
+        IMDB.getInstance().removeRequest(request);
+        RequestsHolder.removeAdminRequest(request);
+    }
+
+    @Override
+    public void solveRequest(Request request) {
+        // TODO: Award experience
+        this.closeRequest(request);
     }
 
     public List<Request> getRequestList() {

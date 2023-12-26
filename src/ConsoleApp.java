@@ -1,3 +1,4 @@
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -580,7 +581,64 @@ public class ConsoleApp {
         return 0;
     }
 
-    static void runConsole() {
+    static int manageStaffRequests() throws InvalidCommandException {
+        if (!(IMDB.getInstance().getCurrentUser() instanceof Staff<?> staff)) {
+            return -1;
+        }
+
+        int n = 0;
+        Scanner scanner = new Scanner(System.in);
+
+        ArrayList<Request> requestList = new ArrayList<>(staff.getRequestList());
+        if (staff.getAccountType() == AccountType.ADMIN) {
+            requestList.addAll(RequestsHolder.getRequests());
+        }
+
+        System.out.println("Select a request:");
+        for (Request request : requestList) {
+            System.out.printf("%d. %s\n", n, request.getDescription());
+            n++;
+        }
+
+        System.out.printf("%d. Return\n", n);
+        System.out.print("Your choice: ");
+        int choice;
+        try {
+            choice = Integer.parseInt(scanner.nextLine());
+        } catch (NumberFormatException e) {
+            throw new InvalidCommandException("Not a number.");
+        }
+
+        if (choice < 0 || choice > n) {
+            throw new InvalidCommandException("Invalid choice. Please retry.");
+        }
+
+        if (choice == n) {
+            return 0;
+        }
+
+        Request request = requestList.get(choice);
+        System.out.println(request);
+        System.out.println("0. Accept");
+        System.out.println("1. Reject");
+        System.out.println("2. Return");
+        System.out.print("Your choice: ");
+        switch (scanner.nextLine()) {
+            case "0":
+                staff.solveRequest(request);
+                break;
+            case "1":
+                staff.closeRequest(request);
+                break;
+            case "2":
+                break;
+            default:
+                throw new InvalidCommandException("Invalid choice. Please retry.");
+        }
+        return 0;
+    }
+
+    static void runConsole() throws IOException {
         Scanner scanner = new Scanner(System.in);
         User user;
 
@@ -612,6 +670,7 @@ public class ConsoleApp {
 
         // Command runner
 
+        commandLoop:
         while (true) {
             int choice;
             ArrayList<Commands.Command> commands = Commands.getFor(user.getAccountType());
@@ -619,6 +678,8 @@ public class ConsoleApp {
             for (int i = 0; i < commands.size(); i++) {
                 System.out.printf("%d. %s\n", i, commands.get(i).getDescription());
             }
+
+            System.out.printf("%d. logout\n", commands.size());
 
             System.out.print("command: ");
             try {
@@ -628,9 +689,31 @@ public class ConsoleApp {
                 continue;
             }
 
-            if (choice < 0 || choice > commands.size() - 1) {
+            if (choice < 0 || choice > commands.size()) {
                 System.out.println("Invalid number");
                 continue;
+            }
+
+            if (choice == commands.size()) {
+                // Logout
+                while (true) {
+                    System.out.println("Exit?");
+                    System.out.println("0. Yes");
+                    System.out.println("1. No");
+                    System.out.print("Your choice: ");
+                    String exitChoice = scanner.nextLine();
+                    switch (exitChoice) {
+                        case "0":
+                            break commandLoop;
+                        case "1":
+                            IMDB.getInstance().logout();
+                            IMDB.getInstance().run();
+                            break commandLoop;
+                        default:
+                            System.out.println("Invalid choice. Please retry");
+                            break;
+                    }
+                }
             }
 
             try {

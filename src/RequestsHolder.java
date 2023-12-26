@@ -1,3 +1,4 @@
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,5 +11,9 @@ public class RequestsHolder {
 
     public static void removeAdminRequest(Request r) {
         adminRequests.remove(r);
+    }
+
+    public static ArrayList<Request> getRequests() {
+        return new ArrayList<>(adminRequests);
     }
 }

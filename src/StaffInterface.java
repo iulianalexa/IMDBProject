@@ -5,5 +5,6 @@ public interface StaffInterface {
     public void removeActorSystem(String name);
     public void updateProduction(Production p);
     public void updateActor(Actor a);
-    void solveRequests();
+    void closeRequest(Request request);
+    void solveRequest(Request request);
 }
