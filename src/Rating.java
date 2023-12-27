@@ -1,13 +1,18 @@
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonCreator;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class Rating implements Subject, Comparable<Rating> {
     private String username, comment;
     private Integer rating;
 
     private final Map<String, ArrayList<Observer>> observers = new HashMap<>();
 
+    @JsonCreator
     public Rating() {}
 
     public Rating(String username, String comment, Integer rating) {
@@ -18,10 +23,6 @@ public class Rating implements Subject, Comparable<Rating> {
 
     public String getUsername() {
         return username;
-    }
-
-    public String getComment() {
-        return comment;
     }
 
     public Integer getRating() {

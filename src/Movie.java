@@ -1,4 +1,5 @@
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonCreator;
 
 import java.util.List;
 
@@ -7,6 +8,7 @@ public class Movie extends Production {
     private Integer releaseYear;
     private String duration;
 
+    @JsonCreator
     Movie() {
         this("", "", "", 0);
     }

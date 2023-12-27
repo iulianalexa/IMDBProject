@@ -1,8 +1,6 @@
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.*;
 
-// TODO: Handle IO Exceptions in main
 // TODO: Warnings
 // TODO: Save on exit
 
@@ -182,7 +180,10 @@ public class ConsoleApp {
                             System.out.println("Could not find production.");
                             break;
                         }
-                        ((User<Production>) IMDB.getInstance().getCurrentUser()).addToFavourites(production);
+
+                        @SuppressWarnings("unchecked")
+                        User<Production> productionUser = (User<Production>) IMDB.getInstance().getCurrentUser();
+                        productionUser.addToFavourites(production);
                         System.out.println("Added production.");
                         break;
                     case "1":
@@ -192,7 +193,10 @@ public class ConsoleApp {
                             System.out.println("Could not find actor.");
                             break;
                         }
-                        ((User<Actor>) IMDB.getInstance().getCurrentUser()).addToFavourites(actor);
+
+                        @SuppressWarnings("unchecked")
+                        User<Actor> actorUser = (User<Actor>) IMDB.getInstance().getCurrentUser();
+                        actorUser.addToFavourites(actor);
                         System.out.println("Added actor.");
                         break;
                 }
@@ -203,11 +207,12 @@ public class ConsoleApp {
                 switch (choice1) {
                     case "0":
                         // Removing production
-                        User<Production> user0 = (User<Production>) IMDB.getInstance().getCurrentUser();
+                        @SuppressWarnings("unchecked")
+                        User<Production> productionUser = (User<Production>) IMDB.getInstance().getCurrentUser();
                         n = 0;
                         ArrayList<Production> productions = new ArrayList<>();
 
-                        for (Object favorite : user0.getFavorites()) {
+                        for (Object favorite : productionUser.getFavorites()) {
                             if (favorite instanceof Production production) {
                                 productions.add(production);
                                 System.out.printf("%d. %s\n", n, production.getTitle());
@@ -230,15 +235,16 @@ public class ConsoleApp {
                             break;
                         }
 
-                        user0.removeFromFavourites(productions.get(choice2));
+                        productionUser.removeFromFavourites(productions.get(choice2));
                         System.out.println("Removed production.");
                         break;
                     case "1":
                         // Removing actor
-                        User<Actor> user1 = (User<Actor>) IMDB.getInstance().getCurrentUser();
+                        @SuppressWarnings("unchecked")
+                        User<Actor> actorUser = (User<Actor>) IMDB.getInstance().getCurrentUser();
                         n = 0;
                         ArrayList<Actor> actors = new ArrayList<>();
-                        for (Object favorite : user1.getFavorites()) {
+                        for (Object favorite : actorUser.getFavorites()) {
                             if (favorite instanceof Actor actor) {
                                 actors.add(actor);
                                 System.out.printf("%d. %s\n", n, actor.getName());
@@ -261,7 +267,7 @@ public class ConsoleApp {
                             break;
                         }
 
-                        user1.removeFromFavourites(actors.get(choice2));
+                        actorUser.removeFromFavourites(actors.get(choice2));
                         System.out.println("Removed actor.");
                         break;
                 }
@@ -276,6 +282,8 @@ public class ConsoleApp {
         if (!(IMDB.getInstance().getCurrentUser() instanceof RequestsManager requestsManager)) {
             return -1;
         }
+        User<?> user = IMDB.getInstance().getCurrentUser();
+        Staff<?> adder;
 
         System.out.println("0. List and manage your current requests");
         System.out.println("1. Add new request");
@@ -345,7 +353,7 @@ public class ConsoleApp {
                                 RequestType.DELETE_ACCOUNT,
                                 LocalDateTime.now(),
                                 description,
-                                IMDB.getInstance().getCurrentUser().getUsername(),
+                                user.getUsername(),
                                 "ADMIN",
                                 false
                         );
@@ -360,7 +368,8 @@ public class ConsoleApp {
                             break;
                         }
 
-                        if (actor.getAddedBy() != null && actor.getAddedBy().equals(IMDB.getInstance().getCurrentUser().getUsername()) && IMDB.getInstance().getCurrentUser().getAccountType() == AccountType.CONTRIBUTOR) {
+                        adder = IMDB.getInstance().getAdder(actor);
+                        if (adder != null && adder.getUsername().equals(user.getUsername()) && user.getAccountType() == AccountType.CONTRIBUTOR) {
                             throw new InvalidCommandException("You cannot open a request on your own contribution!");
                         }
 
@@ -368,9 +377,9 @@ public class ConsoleApp {
                                 RequestType.ACTOR_ISSUE,
                                 LocalDateTime.now(),
                                 description,
-                                IMDB.getInstance().getCurrentUser().getUsername(),
-                                actor.getAddedBy() == null ? "ADMIN" : actor.getAddedBy(),
-                                actor.getAddedBy() != null
+                                user.getUsername(),
+                                adder == null ? "ADMIN" : adder.getUsername(),
+                                adder != null
                         );
                         request.setTargetName(actor.getName());
                         requestsManager.createRequest(request);
@@ -384,7 +393,8 @@ public class ConsoleApp {
                             break;
                         }
 
-                        if (production.getAddedBy().equals(IMDB.getInstance().getCurrentUser().getUsername()) && IMDB.getInstance().getCurrentUser().getAccountType() == AccountType.CONTRIBUTOR) {
+                        adder = IMDB.getInstance().getAdder(production);
+                        if (adder != null && adder.getUsername().equals(user.getUsername()) && user.getAccountType() == AccountType.CONTRIBUTOR) {
                             throw new InvalidCommandException("You cannot open a request on your own contribution!");
                         }
 
@@ -392,9 +402,9 @@ public class ConsoleApp {
                                 RequestType.MOVIE_ISSUE,
                                 LocalDateTime.now(),
                                 description,
-                                IMDB.getInstance().getCurrentUser().getUsername(),
-                                production.getAddedBy() == null ? "ADMIN" : production.getAddedBy(),
-                                production.getAddedBy() != null
+                                user.getUsername(),
+                                adder == null ? "ADMIN" : adder.getUsername(),
+                                adder != null
                         );
                         request.setTargetName(production.getTitle());
                         requestsManager.createRequest(request);
@@ -405,7 +415,7 @@ public class ConsoleApp {
                                 RequestType.OTHERS,
                                 LocalDateTime.now(),
                                 description,
-                                IMDB.getInstance().getCurrentUser().getUsername(),
+                                user.getUsername(),
                                 "ADMIN",
                                 false
                         );
@@ -472,7 +482,6 @@ public class ConsoleApp {
                                 String duration = scanner.nextLine();
 
                                 Movie movie = new Movie(title, description, duration, releaseYear);
-                                movie.setAddedBy(staff.getUsername());
                                 staff.addProductionSystem(movie);
                                 break;
                             case "1":
@@ -484,7 +493,6 @@ public class ConsoleApp {
                                     throw new InvalidCommandException("Not a number.");
                                 }
                                 Series series = new Series(title, description, releaseYear, numberOfSeasons);
-                                series.setAddedBy(staff.getUsername());
                                 staff.addProductionSystem(series);
                                 break;
                             default:
@@ -497,7 +505,6 @@ public class ConsoleApp {
                         System.out.print("Biography: ");
                         String actorBiography = scanner.nextLine();
                         Actor actor = new Actor(actorName, actorBiography);
-                        actor.setAddedBy(staff.getUsername());
                         staff.addActorSystem(actor);
                         break;
                     default:
@@ -514,13 +521,15 @@ public class ConsoleApp {
                     case "0":
                         ArrayList<Production> ownedProductions = new ArrayList<>();
                         for (Movie movie : IMDB.getInstance().getMovieList()) {
-                            if ((movie.getAddedBy() != null && movie.getAddedBy().equals(staff.getUsername())) || (movie.getAddedBy() == null && staff.getAccountType() == AccountType.ADMIN)) {
+                            Staff<?> adder = IMDB.getInstance().getAdder(movie);
+                            if ((adder != null && adder.getUsername().equals(staff.getUsername())) || (adder == null && staff.getAccountType() == AccountType.ADMIN)) {
                                 ownedProductions.add(movie);
                             }
                         }
 
                         for (Series series : IMDB.getInstance().getSeriesList()) {
-                            if ((series.getAddedBy() != null && series.getAddedBy().equals(staff.getUsername())) || (series.getAddedBy() == null && staff.getAccountType() == AccountType.ADMIN)) {
+                            Staff<?> adder = IMDB.getInstance().getAdder(series);
+                            if ((adder != null && adder.getUsername().equals(staff.getUsername())) || (adder == null && staff.getAccountType() == AccountType.ADMIN)) {
                                 ownedProductions.add(series);
                             }
                         }
@@ -549,7 +558,8 @@ public class ConsoleApp {
                     case "1":
                         ArrayList<Actor> ownedActors = new ArrayList<>();
                         for (Actor actor : IMDB.getInstance().getActors()) {
-                            if ((actor.getAddedBy() != null && actor.getAddedBy().equals(staff.getUsername())) || (actor.getAddedBy() == null && staff.getAccountType() == AccountType.ADMIN)) {
+                            Staff<?> adder = IMDB.getInstance().getAdder(actor);
+                            if ((adder != null && adder.getUsername().equals(staff.getUsername())) || (adder == null && staff.getAccountType() == AccountType.ADMIN)) {
                                 ownedActors.add(actor);
                             }
                         }
@@ -643,6 +653,10 @@ public class ConsoleApp {
     }
 
     static int updateProductionActor() throws InvalidCommandException {
+        if (!(IMDB.getInstance().getCurrentUser() instanceof Staff<?> staff)) {
+            return -1;
+        }
+
         Scanner scanner = new Scanner(System.in);
         System.out.println("0. Production");
         System.out.println("1. Actor");
@@ -654,13 +668,15 @@ public class ConsoleApp {
             case "0":
                 ArrayList<Production> productions = new ArrayList<>();
                 for (Movie movie : IMDB.getInstance().getMovieList()) {
-                    if ((movie.getAddedBy() != null && movie.getAddedBy().equals(IMDB.getInstance().getCurrentUser().getUsername())) || (movie.getAddedBy() == null && IMDB.getInstance().getCurrentUser().getAccountType() == AccountType.ADMIN)) {
+                    Staff<?> adder = IMDB.getInstance().getAdder(movie);
+                    if ((adder != null && adder.getUsername().equals(staff.getUsername())) || (adder == null && staff.getAccountType() == AccountType.ADMIN)) {
                         productions.add(movie);
                     }
                 }
 
                 for (Series series : IMDB.getInstance().getSeriesList()) {
-                    if ((series.getAddedBy() != null && series.getAddedBy().equals(IMDB.getInstance().getCurrentUser().getUsername())) || (series.getAddedBy() == null && IMDB.getInstance().getCurrentUser().getAccountType() == AccountType.ADMIN)) {
+                    Staff<?> adder = IMDB.getInstance().getAdder(series);
+                    if ((adder != null && adder.getUsername().equals(staff.getUsername())) || (adder == null && staff.getAccountType() == AccountType.ADMIN)) {
                         productions.add(series);
                     }
                 }
@@ -1010,7 +1026,8 @@ public class ConsoleApp {
             case "1":
                 ArrayList<Actor> actors = new ArrayList<>();
                 for (Actor actor : IMDB.getInstance().getActors()) {
-                    if ((actor.getAddedBy() != null && actor.getAddedBy().equals(IMDB.getInstance().getCurrentUser().getUsername())) || (actor.getAddedBy() == null && IMDB.getInstance().getCurrentUser().getAccountType() == AccountType.ADMIN)) {
+                    Staff<?> adder = IMDB.getInstance().getAdder(actor);
+                    if ((adder != null && adder.getUsername().equals(staff.getUsername())) || (adder == null && staff.getAccountType() == AccountType.ADMIN)) {
                         actors.add(actor);
                     }
                 }
@@ -1066,7 +1083,7 @@ public class ConsoleApp {
                                 ProductionType type = switch (scanner.nextLine()) {
                                     case "0" -> ProductionType.MOVIE;
                                     case "1" -> ProductionType.SERIES;
-                                    default -> throw new InvalidCommandException("Invaild choice. Please retry.");
+                                    default -> throw new InvalidCommandException("Invalid choice. Please retry.");
                                 };
 
                                 System.out.print("Title: ");
@@ -1352,7 +1369,7 @@ public class ConsoleApp {
         return 0;
     }
 
-    static void runConsole() throws IOException {
+    static void runConsole() {
         Scanner scanner = new Scanner(System.in);
         User<?> user;
 

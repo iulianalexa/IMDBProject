@@ -1,7 +1,7 @@
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -14,6 +14,7 @@ public class Series extends Production {
     @JsonProperty("seasons")
     private Map<String, List<Episode>> episodes = new HashMap<>();
 
+    @JsonCreator
     Series() {
         this("", "", 0, 0);
     }

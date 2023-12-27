@@ -1,4 +1,5 @@
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonCreator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,8 +19,7 @@ public class Actor implements Comparable<Object> {
         throw new RuntimeException();
     }
 
-    private String addedBy = null;
-
+    @JsonCreator
     private Actor() {}
 
     public Actor(String name, String biography) {
@@ -28,26 +28,14 @@ public class Actor implements Comparable<Object> {
     }
 
     private String name, biography;
-    private List<Performance> performances = new ArrayList<>();
+    private final List<Performance> performances = new ArrayList<>();
 
     public String getName() {
         return this.name;
     }
 
-    public String getBiography() {
-        return biography;
-    }
-
     public List<Performance> getPerformances() {
         return new ArrayList<>(performances);
-    }
-
-    public String getAddedBy() {
-        return addedBy;
-    }
-
-    public void setAddedBy(String addedBy) {
-        this.addedBy = addedBy;
     }
 
     public void addPerformance(String title, ProductionType type) {

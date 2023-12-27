@@ -30,15 +30,17 @@ public class Admin<T extends Comparable<Object>> extends Staff<T> {
         }
 
         // Reassign contributions
-        for (Production production : productions) {
-            if (production.getAddedBy() != null && production.getAddedBy().equals(user.getUsername())) {
-                production.setAddedBy(null);
-            }
-        }
-
-        for (Actor actor : IMDB.getInstance().getActors()) {
-            if (actor.getAddedBy() != null && actor.getAddedBy().equals(user.getUsername())) {
-                actor.setAddedBy(null);
+        if (user instanceof Staff<?> staff) {
+            for (Object contribution : staff.getContributions()) {
+                if (contribution instanceof Production production) {
+                    @SuppressWarnings("unchecked")
+                    Staff<Production> productionStaff = (Staff<Production>) staff;
+                    productionStaff.removeContribution(production);
+                } else if (contribution instanceof Actor actor) {
+                    @SuppressWarnings("unchecked")
+                    Staff<Actor> actorStaff = (Staff<Actor>) staff;
+                    actorStaff.removeContribution(actor);
+                }
             }
         }
 

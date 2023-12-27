@@ -2,28 +2,25 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.exc.ValueInstantiationException;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Scanner;
-import java.util.stream.Stream;
 
 public class IMDB {
-    private static IMDB obj = new IMDB();
+    private static final IMDB obj = new IMDB();
     private User<?> currentUser = null;
 
-    private List<Regular<?>> regulars = new ArrayList<>();
-    private List<Contributor<?>> contributors = new ArrayList<>();
-    private List<Admin<?>> admins = new ArrayList<>();
+    private final List<Regular<?>> regulars = new ArrayList<>();
+    private final List<Contributor<?>> contributors = new ArrayList<>();
+    private final List<Admin<?>> admins = new ArrayList<>();
 
     private List<Actor> actors = new ArrayList<>();
-    private List<Request> requestList = new ArrayList<>();
-    private List<Movie> movieList = new ArrayList<>();
-    private List<Series> seriesList = new ArrayList<>();
+    private final List<Request> requestList = new ArrayList<>();
+    private final List<Movie> movieList = new ArrayList<>();
+    private final List<Series> seriesList = new ArrayList<>();
 
     public static IMDB getInstance() {
         return obj;
@@ -83,7 +80,7 @@ public class IMDB {
 
     private void readProductions() throws IOException {
         ObjectMapper mapper = new ObjectMapper();
-        List<JsonNode> jsonNodeList = mapper.readValue(new File("input/production.json"), new TypeReference<List<JsonNode>>() {});
+        List<JsonNode> jsonNodeList = mapper.readValue(new File("input/production.json"), new TypeReference<>() {});
         for (JsonNode jsonNode : jsonNodeList) {
             ProductionType type = mapper.treeToValue(jsonNode.get("type"), ProductionType.class);
             Production production = null;
@@ -110,7 +107,7 @@ public class IMDB {
 
     private void readActors() throws IOException {
         ObjectMapper mapper = new ObjectMapper();
-        this.actors = mapper.readValue(new File("input/actors.json"), new TypeReference<List<Actor>>() {});
+        this.actors = mapper.readValue(new File("input/actors.json"), new TypeReference<>() {});
     }
 
     public User<?> getCurrentUser() {
@@ -133,7 +130,7 @@ public class IMDB {
         ObjectMapper mapper = new ObjectMapper();
         List<User.UnknownUser> unknownUserList;
         try {
-            unknownUserList = mapper.readValue(new File("input/accounts.json"), new TypeReference<List<User.UnknownUser>>() {});
+            unknownUserList = mapper.readValue(new File("input/accounts.json"), new TypeReference<>() {});
         } catch (JsonMappingException e) {
             if (e.getCause() instanceof InformationIncompleteException e1) {
                 System.out.println(e1.getMessage());
@@ -149,17 +146,11 @@ public class IMDB {
         for (User.UnknownUser unknownUser : unknownUserList) {
             User<?> user = UserFactory.factory(unknownUser);
             switch (Objects.requireNonNull(user).getAccountType()) {
-                case REGULAR -> {
-                    this.regulars.add((Regular<?>) user);
-                }
+                case REGULAR -> this.regulars.add((Regular<?>) user);
 
-                case CONTRIBUTOR -> {
-                    this.contributors.add((Contributor<?>) user);
-                }
+                case CONTRIBUTOR -> this.contributors.add((Contributor<?>) user);
 
-                case ADMIN -> {
-                    this.admins.add((Admin<?>) user);
-                }
+                case ADMIN -> this.admins.add((Admin<?>) user);
             }
         }
 
@@ -168,7 +159,7 @@ public class IMDB {
 
     private void readRequests() throws IOException {
         ObjectMapper mapper = new ObjectMapper();
-        List<Request> requests = mapper.readValue(new File("input/requests.json"), new TypeReference<List<Request>>() {});
+        List<Request> requests = mapper.readValue(new File("input/requests.json"), new TypeReference<>() {});
         for (Request request : requests) {
             User<?> author = getUser(request.getAuthorUsername());
             if (!(author instanceof RequestsManager requestsManager)) {
@@ -180,7 +171,7 @@ public class IMDB {
     }
 
     User<?> getUser(String username) {
-        List<User<?>> users = new ArrayList<User<?>>(regulars);
+        List<User<?>> users = new ArrayList<>(regulars);
         users.addAll(contributors);
         users.addAll(admins);
 
@@ -232,18 +223,24 @@ public class IMDB {
         return null;
     }
 
-    public void run() throws IOException {
+    public void run() {
         boolean noGui = true;
 
         // Load input data
-        this.readActors();
-        this.readProductions();
-        if (this.readUsers() < 0) {
-            System.out.println("Reading the accounts file failed!");
+        try {
+            this.readActors();
+            this.readProductions();
+            if (this.readUsers() < 0) {
+                System.out.println("Reading the accounts file failed!");
+                return;
+            }
+
+            this.readRequests();
+        } catch (IOException e) {
+            System.out.println("Invalid input files.");
+            System.err.println(e.getMessage());
             return;
         }
-
-        this.readRequests();
 
         if (noGui) {
             ConsoleApp.runConsole();
@@ -268,6 +265,32 @@ public class IMDB {
         } else if (user instanceof Admin<?> admin) {
             this.admins.remove(admin);
         }
+    }
+
+    public Staff<?> getAdder(Production production) {
+        ArrayList<Staff<?>> staffArrayList = new ArrayList<>(contributors);
+        staffArrayList.addAll(admins);
+
+        for (Staff<?> staff : staffArrayList) {
+            if (staff.contributedTo(production)) {
+                return staff;
+            }
+        }
+
+        return null;
+    }
+
+    public Staff<?> getAdder(Actor actor) {
+        ArrayList<Staff<?>> staffArrayList = new ArrayList<>(contributors);
+        staffArrayList.addAll(admins);
+
+        for (Staff<?> staff : staffArrayList) {
+            if (staff.contributedTo(actor)) {
+                return staff;
+            }
+        }
+
+        return null;
     }
 
     public void logout() {

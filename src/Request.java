@@ -1,7 +1,7 @@
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
@@ -30,6 +30,7 @@ public class Request implements Subject {
     private String targetName;
     private boolean hasAssigned = false;
 
+    @JsonCreator
     private Request() {}
 
     public Request(RequestType type, LocalDateTime createdDate, String description, String authorUsername, String assignedUsername, boolean hasAssigned) {
@@ -63,7 +64,9 @@ public class Request implements Subject {
 
     @Override
     public String toString() {
-        StringBuilder s = new StringBuilder("TYPE: " + type + '\n' +
+        StringBuilder s = new StringBuilder(
+                "ON:" + createdDate + '\n' +
+                "TYPE: " + type + '\n' +
                 "BY: " + authorUsername + '\n' +
                 "TO: " + assignedUsername + '\n');
 
@@ -121,7 +124,7 @@ public class Request implements Subject {
 class CustomRequestsDeserializer extends JsonDeserializer<LocalDateTime> {
 
     @Override
-    public LocalDateTime deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException, JacksonException {
+    public LocalDateTime deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
         String text = jsonParser.getText();
         return LocalDateTime.parse(text, DateTimeFormatter.ISO_DATE_TIME);
     }

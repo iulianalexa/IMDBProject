@@ -4,36 +4,27 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 abstract public class Staff<T extends Comparable<Object>> extends User<T> implements StaffInterface {
-    private List<Request> requestList = new ArrayList<>();
-    private SortedSet<Object> contributions = new TreeSet<>();
+    private final List<Request> requestList = new ArrayList<>();
+    private final SortedSet<T> contributions = new TreeSet<>();
 
     public Staff(UnknownUser unknownUser) {
         super(unknownUser);
 
-        outerloop:
         for (String productionTitle : unknownUser.getProductionsContribution()) {
-            for (Production currentProduction : IMDB.getInstance().getMovieList()) {
-                if (currentProduction.getTitle().equals(productionTitle)) {
-                    this.contributions.add(currentProduction);
-                    break outerloop;
-                }
-            }
-
-            for (Production currentProduction : IMDB.getInstance().getSeriesList()) {
-                if (currentProduction.getTitle().equals(productionTitle)) {
-                    this.contributions.add(currentProduction);
-                    break outerloop;
-                }
+            Production production = IMDB.getInstance().searchForProduction(productionTitle);
+            if (production != null) {
+                @SuppressWarnings("unchecked")
+                SortedSet<Production> productionSortedSet = (SortedSet<Production>) contributions;
+                productionSortedSet.add(production);
             }
         }
 
-        outerloop:
         for (String actorName : unknownUser.getActorsContribution()) {
-            for (Actor currentActor : IMDB.getInstance().getActors()) {
-                if (currentActor.getName().equals(actorName)) {
-                    this.contributions.add(currentActor);
-                    break outerloop;
-                }
+            Actor actor = IMDB.getInstance().searchForActor(actorName);
+            if (actor != null) {
+                @SuppressWarnings("unchecked")
+                SortedSet<Actor> actorSortedSet = (SortedSet<Actor>) contributions;
+                actorSortedSet.add(actor);
             }
         }
     }
@@ -47,12 +38,19 @@ abstract public class Staff<T extends Comparable<Object>> extends User<T> implem
             IMDB.getInstance().addSeries(series);
         }
 
+        @SuppressWarnings("unchecked")
+        SortedSet<Production> productionSortedSet = (SortedSet<Production>) contributions;
+        productionSortedSet.add(p);
         this.awardExperience(new NewContributionExperienceStrategy());
     }
 
     @Override
     public void addActorSystem(Actor a) {
         IMDB.getInstance().addActor(a);
+
+        @SuppressWarnings("unchecked")
+        SortedSet<Actor> actorSortedSet = (SortedSet<Actor>) contributions;
+        actorSortedSet.add(a);
         this.awardExperience(new NewContributionExperienceStrategy());
     }
 
@@ -68,6 +66,10 @@ abstract public class Staff<T extends Comparable<Object>> extends User<T> implem
         } else if (production instanceof Series series) {
             IMDB.getInstance().removeSeries(series);
         }
+
+        @SuppressWarnings("unchecked")
+        SortedSet<Production> productionSortedSet = (SortedSet<Production>) contributions;
+        productionSortedSet.remove(production);
     }
 
     @Override
@@ -77,6 +79,9 @@ abstract public class Staff<T extends Comparable<Object>> extends User<T> implem
             return;
         }
 
+        @SuppressWarnings("unchecked")
+        SortedSet<Actor> actorSortedSet = (SortedSet<Actor>) contributions;
+        actorSortedSet.remove(actor);
         IMDB.getInstance().removeActor(actor);
     }
 
@@ -132,7 +137,11 @@ abstract public class Staff<T extends Comparable<Object>> extends User<T> implem
     }
 
     public List<Request> getRequestList() {
-        return requestList;
+        return new ArrayList<>(requestList);
+    }
+
+    public List<T> getContributions() {
+        return new ArrayList<>(contributions);
     }
 
     public void addRequest(Request request) {
@@ -141,5 +150,31 @@ abstract public class Staff<T extends Comparable<Object>> extends User<T> implem
 
     public void removeRequest(Request request) {
         this.requestList.remove(request);
+    }
+
+    public boolean contributedTo(Production production) {
+        for (Object object : this.contributions) {
+            if (object instanceof Production currentProduction) {
+                if (currentProduction.getTitle().equals(production.getTitle())) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public boolean contributedTo(Actor actor) {
+        for (Object object : this.contributions) {
+            if (object instanceof Actor currentActor) {
+                if (currentActor.getName().equals(actor.getName())) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public void removeContribution(T contribution) {
+        contributions.remove(contribution);
     }
 }

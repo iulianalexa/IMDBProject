@@ -1,58 +1,22 @@
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import java.io.IOException;
-import java.io.InvalidClassException;
 import java.util.ArrayList;
 import java.util.List;
-
-enum Genre {
-    @JsonProperty("Action")
-    ACTION,
-    @JsonProperty("Adventure")
-    ADVENTURE,
-    @JsonProperty("Comedy")
-    COMEDY,
-    @JsonProperty("Drama")
-    DRAMA,
-    @JsonProperty("Horror")
-    HORROR,
-    @JsonProperty("SF")
-    SF,
-    @JsonProperty("Fantasy")
-    FANTASY,
-    @JsonProperty("Romance")
-    ROMANCE,
-    @JsonProperty("Mystery")
-    MYSTERY,
-    @JsonProperty("Thriller")
-    THRILLER,
-    @JsonProperty("Crime")
-    CRIME,
-    @JsonProperty("Biography")
-    BIOGRAPHY,
-    @JsonProperty("War")
-    WAR,
-    @JsonProperty("Cooking")
-    COOKING
-}
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 abstract public class Production implements Comparable<Object> {
     private String title, plot;
-    private List<String> directors = new ArrayList<>();
-
-    private String addedBy = null;
+    private final List<String> directors = new ArrayList<>();
 
     @JsonDeserialize(using = CustomProductionDeserializer.class)
     private List<Actor> actors = new ArrayList<>();
-    private List<Genre> genres = new ArrayList<>();
-    private List<Rating> ratings = new ArrayList<>();
+    private final List<Genre> genres = new ArrayList<>();
+    private final List<Rating> ratings = new ArrayList<>();
     private Double averageRating = 0.0;
     private ProductionType type;
 
@@ -133,14 +97,6 @@ abstract public class Production implements Comparable<Object> {
         this.updateScore();
     }
 
-    public String getAddedBy() {
-        return addedBy;
-    }
-
-    public void setAddedBy(String addedBy) {
-        this.addedBy = addedBy;
-    }
-
     public void setTitle(String title) {
         this.title = title;
     }
@@ -180,7 +136,7 @@ abstract public class Production implements Comparable<Object> {
 
 class CustomProductionDeserializer extends JsonDeserializer<List<Actor>> {
     @Override
-    public List<Actor> deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException, JacksonException {
+    public List<Actor> deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
         List<Actor> actors = new ArrayList<>();
         String actorName;
 

@@ -1,5 +1,4 @@
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
@@ -12,15 +11,6 @@ import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-enum AccountType {
-    @JsonProperty("Regular")
-    REGULAR,
-    @JsonProperty("Contributor")
-    CONTRIBUTOR,
-    @JsonProperty("Admin")
-    ADMIN
-}
-
 abstract public class User<T extends Comparable<Object>> implements Observer {
     User(UnknownUser unknownUser) {
         this.username = unknownUser.username;
@@ -30,30 +20,21 @@ abstract public class User<T extends Comparable<Object>> implements Observer {
         this.notificationList = unknownUser.notifications;
         this.favorites = new TreeSet<>();
 
-        outerloop:
         for (String productionTitle : unknownUser.favoriteProductions) {
-            for (Production currentProduction : IMDB.getInstance().getMovieList()) {
-                if (currentProduction.getTitle().equals(productionTitle)) {
-                    ((User<Production>) this).favorites.add(currentProduction);
-                    break outerloop;
-                }
-            }
-
-            for (Production currentProduction : IMDB.getInstance().getSeriesList()) {
-                if (currentProduction.getTitle().equals(productionTitle)) {
-                    ((User<Production>) this).favorites.add(currentProduction);
-                    break outerloop;
-                }
+            Production production = IMDB.getInstance().searchForProduction(productionTitle);
+            if (production != null) {
+                @SuppressWarnings("unchecked")
+                User<Production> productionUser = (User<Production>) this;
+                productionUser.favorites.add(production);
             }
         }
 
-        outerloop:
         for (String actorName : unknownUser.favoriteActors) {
-            for (Actor currentActor : IMDB.getInstance().getActors()) {
-                if (currentActor.getName().equals(actorName)) {
-                    ((User<Actor>) this).favorites.add(currentActor);
-                    break outerloop;
-                }
+            Actor actor = IMDB.getInstance().searchForActor(actorName);
+            if (actor != null) {
+                @SuppressWarnings("unchecked")
+                User<Actor> actorUser = (User<Actor>) this;
+                actorUser.favorites.add(actor);
             }
         }
     }
@@ -61,14 +42,16 @@ abstract public class User<T extends Comparable<Object>> implements Observer {
     @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
     public static class UnknownUser {
         private String username;
-        private int experience = 0;
+        private final int experience = 0;
         private Information information;
         private AccountType userType;
-        private List<String> productionsContribution = new ArrayList<>();
-        private List<String> actorsContribution = new ArrayList<>();
-        private List<String> favoriteProductions = new ArrayList<>();
-        private List<String> favoriteActors = new ArrayList<>();
-        private List<String> notifications = new ArrayList<>();
+        private final List<String> productionsContribution = new ArrayList<>();
+        private final List<String> actorsContribution = new ArrayList<>();
+        @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
+        private final List<String> favoriteProductions = new ArrayList<>();
+        @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
+        private final List<String> favoriteActors = new ArrayList<>();
+        private final List<String> notifications = new ArrayList<>();
 
         public List<String> getProductionsContribution() {
             return productionsContribution;
