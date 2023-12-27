@@ -82,9 +82,15 @@ public class Commands {
                 ),
 
                 new Command(
-                        Arrays.asList(AccountType.REGULAR),
+                        List.of(AccountType.REGULAR),
                         ConsoleApp::rateProduction,
                         "Add/Remove rating for a production"
+                ),
+
+                new Command(
+                        List.of(AccountType.ADMIN),
+                        ConsoleApp::manageUsers,
+                        "Add/Remove users"
                 )
         };
     }

@@ -648,6 +648,7 @@ public class ConsoleApp {
         Scanner scanner = new Scanner(System.in);
         System.out.println("0. Production");
         System.out.println("1. Actor");
+        System.out.println("2. Return");
         System.out.print("Your choice: ");
         String choice = scanner.nextLine();
         int n, selectionChoice;
@@ -1130,6 +1131,8 @@ public class ConsoleApp {
                         throw new InvalidCommandException("Invalid choice. Please retry.");
                 }
                 break;
+            case "2":
+                break;
             default:
                 throw new InvalidCommandException("Invalid choice. Please retry.");
         }
@@ -1138,6 +1141,10 @@ public class ConsoleApp {
     }
 
     static int rateProduction() throws InvalidCommandException {
+        if (!(IMDB.getInstance().getCurrentUser() instanceof Regular<?> regular)) {
+            return -1;
+        }
+
         Scanner scanner = new Scanner(System.in);
         System.out.print("Production name: ");
         Production production = IMDB.getInstance().searchForProduction(scanner.nextLine());
@@ -1192,13 +1199,158 @@ public class ConsoleApp {
 
             System.out.print("Comment: ");
             String comment = scanner.nextLine();
-            production.addRating(new Rating(IMDB.getInstance().getCurrentUser().getUsername(), comment, score));
+            regular.rate(production, score, comment);
             if (currentRating != null) {
                 production.removeRating(currentRating);
             }
 
             System.out.println("Thank you for your rating!");
         }
+        return 0;
+    }
+
+    static int manageUsers() throws InvalidCommandException {
+        if (!(IMDB.getInstance().getCurrentUser() instanceof Admin<?> admin)) {
+            return -1;
+        }
+
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("0. Add user");
+        System.out.println("1. Remove user");
+        System.out.println("2. Return");
+        System.out.print("Your choice: ");
+        switch (scanner.nextLine()) {
+            case "0":
+                System.out.println("Please choose an account type from the following list:");
+                System.out.println(Arrays.toString(AccountType.values()));
+                System.out.print("Account type: ");
+                AccountType userType;
+                try {
+                    userType = AccountType.valueOf(scanner.nextLine().toUpperCase());
+                } catch (IllegalArgumentException e) {
+                    throw new InvalidCommandException("Invalid choice. Please retry.");
+                }
+                System.out.println("For optional fields, type nothing to skip.");
+                System.out.print("Name*: ");
+                String userFullName = scanner.nextLine();
+                System.out.print("Email*: ");
+                String email = scanner.nextLine();
+                System.out.print("Country: ");
+                String country = scanner.nextLine();
+                System.out.print("Gender: ");
+                String gender = scanner.nextLine();
+                System.out.print("Birth date: ");
+                String birthDate = scanner.nextLine();
+                System.out.print("Age: ");
+                int age = -1;
+                String ageToParse = scanner.nextLine();
+                if (!ageToParse.isEmpty()) {
+                    try {
+                        // why do we still need to input the age if we have a birthdate?...
+                        age = Integer.parseInt(scanner.nextLine());
+                    } catch (NumberFormatException e) {
+                        throw new InvalidCommandException("Not a number.");
+                    }
+                }
+
+                // Create credentials
+                int usernameOffset = 0;
+                String usernameBase = userFullName.replace(" ", "_");
+                String username;
+                do {
+                    username = usernameOffset == 0 ? usernameBase : String.format("%s_%d", usernameBase, usernameOffset);
+                    usernameOffset++;
+                } while (IMDB.getInstance().getUser(username) != null);
+                String password = RandomPasswordGenerator.generate(20);
+
+                User.Information.Credentials credentials = null;
+                if (!email.isEmpty()) {
+                    credentials = new User.Information.Credentials(email, password);
+                }
+
+                // Build information
+                User.Information.InformationBuilder informationBuilder = new User.Information.InformationBuilder();
+                if (credentials != null) {
+                    informationBuilder = informationBuilder.credentials(credentials);
+                }
+
+                if (!userFullName.isEmpty()) {
+                    informationBuilder = informationBuilder.name(userFullName);
+                }
+
+                if (!country.isEmpty()) {
+                    informationBuilder = informationBuilder.country(country);
+                }
+
+                if (!gender.isEmpty()) {
+                    informationBuilder = informationBuilder.gender(gender);
+                }
+
+                if (!birthDate.isEmpty()) {
+                    try {
+                        informationBuilder = informationBuilder.birthDate(birthDate);
+                    } catch (InvalidInformationException e) {
+                        throw new InvalidCommandException("Birth date is not valid!");
+                    }
+                }
+
+                if (age != -1) {
+                    informationBuilder = informationBuilder.age(age);
+                }
+
+                User.Information information;
+                try {
+                    information = informationBuilder.build();
+                } catch (InformationIncompleteException e) {
+                    throw new InvalidCommandException(e.getMessage());
+                }
+
+                // Create user
+                User.UnknownUser unknownUser = new User.UnknownUser(username, information, userType);
+                User<?> user = UserFactory.factory(unknownUser);
+                admin.addUser(user);
+                System.out.printf("Added user %s with password %s.\n", username, password);
+
+                break;
+            case "1":
+                ArrayList<User<?>> userList = new ArrayList<>(IMDB.getInstance().getRegulars());
+                userList.addAll(IMDB.getInstance().getContributors());
+                userList.addAll(IMDB.getInstance().getAdmins());
+
+                int n = 0;
+                for (User<?> user1 : userList) {
+                    System.out.printf("%d. %s\n", n, user1.getUsername());
+                    n++;
+                }
+
+                System.out.printf("%d. Return\n", n);
+                System.out.print("Your choice: ");
+                int numberChoice;
+                try {
+                    numberChoice = Integer.parseInt(scanner.nextLine());
+                } catch (NumberFormatException e) {
+                    throw new InvalidCommandException("Not a number.");
+                }
+
+                if (numberChoice < 0 || numberChoice > n) {
+                    throw new InvalidCommandException("Invalid choice. Please retry.");
+                }
+
+                if (numberChoice == n) {
+                    break;
+                }
+
+                // Remove user
+                User<?> userToDelete = userList.get(numberChoice);
+                admin.removeUser(userToDelete);
+                System.out.println("User has been deleted.");
+                break;
+            case "2":
+                break;
+            default:
+                throw new InvalidCommandException("Invalid choice. Please retry.");
+        }
+
         return 0;
     }
 
@@ -1270,8 +1422,8 @@ public class ConsoleApp {
                         case "0":
                             break commandLoop;
                         case "1":
-                            IMDB.getInstance().logout();
-                            IMDB.getInstance().run();
+                            IMDB.getInstance().getCurrentUser().logout();
+                            ConsoleApp.runConsole();
                             break commandLoop;
                         default:
                             System.out.println("Invalid choice. Please retry");
@@ -1285,9 +1437,10 @@ public class ConsoleApp {
             } catch (Exception e) {
                 if (e instanceof InvalidCommandException e1) {
                     System.out.println(e1.getMessage());
-                } else {
-                    e.printStackTrace();
+                } else if (e instanceof RuntimeException e2) {
+                    throw e2;
                 }
+                System.err.println("Impossible error.");
             }
         }
     }

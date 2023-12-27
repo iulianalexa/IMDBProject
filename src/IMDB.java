@@ -1,4 +1,5 @@
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.ValueInstantiationException;
@@ -133,9 +134,12 @@ public class IMDB {
         List<User.UnknownUser> unknownUserList;
         try {
             unknownUserList = mapper.readValue(new File("input/accounts.json"), new TypeReference<List<User.UnknownUser>>() {});
-        } catch (ValueInstantiationException e) {
+        } catch (JsonMappingException e) {
             if (e.getCause() instanceof InformationIncompleteException e1) {
                 System.out.println(e1.getMessage());
+                return -1;
+            } else if (e.getCause() instanceof InvalidInformationException e2) {
+                System.out.println(e2.getMessage());
                 return -1;
             }
 
@@ -246,7 +250,27 @@ public class IMDB {
         }
     }
 
+    public void addUser(User<?> user) {
+        if (user instanceof Regular<?> regular) {
+            this.regulars.add(regular);
+        } else if (user instanceof Contributor<?> contributor) {
+            this.contributors.add(contributor);
+        } else if (user instanceof Admin<?> admin) {
+            this.admins.add(admin);
+        }
+    }
+
+    public void removeUser(User<?> user) {
+        if (user instanceof Regular<?> regular) {
+            this.regulars.remove(regular);
+        } else if (user instanceof Contributor<?> contributor) {
+            this.contributors.remove(contributor);
+        } else if (user instanceof Admin<?> admin) {
+            this.admins.remove(admin);
+        }
+    }
+
     public void logout() {
-        obj = new IMDB();
+        currentUser = null;
     }
 }

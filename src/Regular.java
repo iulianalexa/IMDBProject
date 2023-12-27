@@ -50,6 +50,26 @@ public class Regular<T extends Comparable<Object>> extends User<T> implements Re
 
     void rate(Production production, Integer score, String comment) {
         Rating rating = new Rating(this.getUsername(), comment, score);
+        rating.subscribe(this);
+        if (production.getAddedBy() != null) {
+            User<?> adder = IMDB.getInstance().getUser(production.getAddedBy());
+            if (adder != null) {
+                rating.subscribe(adder);
+            }
+        }
+
+        for (Rating existingRating : production.getRatings()) {
+            existingRating.sendNotification("regular", String.format(
+                    "The production you rated, %s, received a new rating! (%d)",
+                    production.getTitle(), score
+            ));
+        }
+
+        rating.sendNotification("contributor", String.format(
+                "The production you added, %s, received a new rating! (%d)",
+                production.getTitle(), score
+        ));
+
         production.addRating(rating);
     }
 }

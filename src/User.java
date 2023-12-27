@@ -3,7 +3,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
-import java.lang.reflect.Array;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.SortedSet;
@@ -18,10 +21,10 @@ enum AccountType {
     ADMIN
 }
 
-abstract public class User<T extends Comparable<Object>> {
+abstract public class User<T extends Comparable<Object>> implements Observer {
     User(UnknownUser unknownUser) {
         this.username = unknownUser.username;
-        this.experience = unknownUser.experience == null ? 0 : Integer.parseInt(unknownUser.experience);
+        this.experience = unknownUser.experience;
         this.information = unknownUser.information;
         this.accountType = unknownUser.userType;
         this.notificationList = unknownUser.notifications;
@@ -57,7 +60,8 @@ abstract public class User<T extends Comparable<Object>> {
 
     @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
     public static class UnknownUser {
-        private String username, experience;
+        private String username;
+        private int experience = 0;
         private Information information;
         private AccountType userType;
         private List<String> productionsContribution = new ArrayList<>();
@@ -77,13 +81,22 @@ abstract public class User<T extends Comparable<Object>> {
         public AccountType getUserType() {
             return this.userType;
         }
+
+        private UnknownUser() {}
+
+        public UnknownUser(String username, Information information, AccountType userType) {
+            this();
+            this.username = username;
+            this.information = information;
+            this.userType = userType;
+        }
     }
 
     @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
     @JsonDeserialize(builder = Information.InformationBuilder.class)
-    private static class Information {
+    public static class Information {
         @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
-        private static class Credentials {
+        public static class Credentials {
             private String email, password;
 
             private Credentials() {}
@@ -95,11 +108,12 @@ abstract public class User<T extends Comparable<Object>> {
         }
 
         private Credentials credentials;
-        private String name, country, birthDate;
+        private String name, country;
+        LocalDateTime birthDate;
         private String gender;
         private Integer age;
 
-        private Information(Credentials credentials, String name, String country, String gender, Integer age, String birthDate) {
+        private Information(Credentials credentials, String name, String country, String gender, Integer age, LocalDateTime birthDate) {
             this.credentials = credentials;
             this.name = name;
             this.country = country;
@@ -111,40 +125,46 @@ abstract public class User<T extends Comparable<Object>> {
         @JsonPOJOBuilder(withPrefix = "")
         public static class InformationBuilder {
             private Credentials credentials;
-            private String name, country, birthDate, gender;
+            private String name, country, gender;
+            LocalDateTime birthDate;
             private Integer age;
 
-            InformationBuilder credentials(Credentials credentials) {
+            public InformationBuilder credentials(Credentials credentials) {
                 this.credentials = credentials;
                 return this;
             }
 
-            InformationBuilder name(String name) {
+            public InformationBuilder name(String name) {
                 this.name = name;
                 return this;
             }
 
-            InformationBuilder country(String country) {
+            public InformationBuilder country(String country) {
                 this.country = country;
                 return this;
             }
 
-            InformationBuilder gender(String gender) {
+            public InformationBuilder gender(String gender) {
                 this.gender = gender;
                 return this;
             }
 
-            InformationBuilder age(Integer age) {
+            public InformationBuilder age(Integer age) {
                 this.age = age;
                 return this;
             }
 
-            InformationBuilder birthDate(String birthDate) {
-                this.birthDate = birthDate;
+            public InformationBuilder birthDate(String birthDate) throws InvalidInformationException {
+                try {
+                    this.birthDate = LocalDate.parse(birthDate, DateTimeFormatter.ISO_LOCAL_DATE).atStartOfDay();
+                } catch (DateTimeParseException e) {
+                    throw new InvalidInformationException(e.getMessage());
+                }
+
                 return this;
             }
 
-            Information build() throws InformationIncompleteException {
+            public Information build() throws InformationIncompleteException {
                 if (credentials == null) {
                     throw new InformationIncompleteException("Credentials are null!");
                 }
@@ -206,6 +226,11 @@ abstract public class User<T extends Comparable<Object>> {
     }
 
     public void logout() {
-        // TODO
+        IMDB.getInstance().logout();
+    }
+
+    @Override
+    public void update(String message) {
+        notificationList.add(message);
     }
 }

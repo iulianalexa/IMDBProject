@@ -1,6 +1,10 @@
-public class Rating {
+import java.util.ArrayList;
+
+public class Rating implements Subject {
     private String username, comment;
     private Integer rating;
+
+    private ArrayList<Observer> observers = new ArrayList<>();
 
     public Rating() {}
 
@@ -25,5 +29,35 @@ public class Rating {
     @Override
     public String toString() {
         return String.format("%s (%d)\n%s", this.username, this.rating, this.comment);
+    }
+
+    @Override
+    public void subscribe(Observer observer) {
+        observers.add(observer);
+    }
+
+    @Override
+    public void unsubscribe(Observer observer) {
+        observers.remove(observer);
+    }
+
+    @Override
+    public void sendNotification(String notificationType, String message) {
+        switch (notificationType) {
+            case "regular":
+                for (Observer observer : observers) {
+                    if (observer instanceof Regular<?>) {
+                        observer.update(message);
+                    }
+                }
+                break;
+            case "contributor":
+                for (Observer observer : observers) {
+                    if (observer instanceof Contributor<?>) {
+                        observer.update(message);
+                    }
+                }
+                break;
+        }
     }
 }
