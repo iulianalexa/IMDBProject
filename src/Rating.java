@@ -21,4 +21,9 @@ public class Rating {
     public Integer getRating() {
         return rating;
     }
+
+    @Override
+    public String toString() {
+        return String.format("%s (%d)\n%s", this.username, this.rating, this.comment);
+    }
 }

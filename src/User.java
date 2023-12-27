@@ -144,7 +144,15 @@ abstract public class User<T extends Comparable<Object>> {
                 return this;
             }
 
-            Information build() {
+            Information build() throws InformationIncompleteException {
+                if (credentials == null) {
+                    throw new InformationIncompleteException("Credentials are null!");
+                }
+
+                if (name == null) {
+                    throw new InformationIncompleteException("Name is null!");
+                }
+
                 return new Information(credentials, name, country, gender, age, birthDate);
             }
         }

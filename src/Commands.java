@@ -1,3 +1,4 @@
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -78,6 +79,12 @@ public class Commands {
                         Arrays.asList(AccountType.CONTRIBUTOR, AccountType.ADMIN),
                         ConsoleApp::updateProductionActor,
                         "Update a production/actor"
+                ),
+
+                new Command(
+                        Arrays.asList(AccountType.REGULAR),
+                        ConsoleApp::rateProduction,
+                        "Add/Remove rating for a production"
                 )
         };
     }

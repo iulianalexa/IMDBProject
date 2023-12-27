@@ -4,8 +4,9 @@ import java.util.*;
 
 // TODO: Notify
 // TODO: Strategy
-// TODO: Exception #2
 // TODO: Handle IO Exceptions in main
+// TODO: Warnings
+// TODO: Checker
 
 public class ConsoleApp {
     static int showProduction() throws InvalidCommandException {
@@ -1133,6 +1134,71 @@ public class ConsoleApp {
                 throw new InvalidCommandException("Invalid choice. Please retry.");
         }
 
+        return 0;
+    }
+
+    static int rateProduction() throws InvalidCommandException {
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Production name: ");
+        Production production = IMDB.getInstance().searchForProduction(scanner.nextLine());
+        if (production == null) {
+            throw new InvalidCommandException("Could not find production.");
+        }
+
+        Rating currentRating = null;
+        for (Rating rating : production.getRatings()) {
+            if (rating.getUsername().equals(IMDB.getInstance().getCurrentUser().getUsername())) {
+                currentRating = rating;
+                break;
+            }
+        }
+
+        boolean willRate = true;
+        if (currentRating != null) {
+            willRate = false;
+            System.out.println("You have already rated this production!");
+            System.out.println(currentRating);
+            System.out.println("0. Remove rating");
+            System.out.println("1. Modify rating");
+            System.out.println("2. Return");
+            System.out.print("Your choice: ");
+            switch (scanner.nextLine()) {
+                case "0":
+                    production.removeRating(currentRating);
+                    System.out.println("Rating removed.");
+                    break;
+                case "1":
+                    willRate = true;
+                    break;
+                case "2":
+                    break;
+                default:
+                    throw new InvalidCommandException("Invalid choice. Please retry.");
+            }
+        }
+
+        if (willRate) {
+            System.out.print("Score: ");
+            int score;
+            try {
+                score = Integer.parseInt(scanner.nextLine());
+            } catch (NumberFormatException e) {
+                throw new InvalidCommandException("Not a number.");
+            }
+
+            if (score < 0 || score > 10) {
+                throw new InvalidCommandException("Invalid choice. Please retry.");
+            }
+
+            System.out.print("Comment: ");
+            String comment = scanner.nextLine();
+            production.addRating(new Rating(IMDB.getInstance().getCurrentUser().getUsername(), comment, score));
+            if (currentRating != null) {
+                production.removeRating(currentRating);
+            }
+
+            System.out.println("Thank you for your rating!");
+        }
         return 0;
     }
 

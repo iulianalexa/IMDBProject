@@ -1,6 +1,7 @@
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.exc.ValueInstantiationException;
 
 import java.io.File;
 import java.io.IOException;
@@ -127,9 +128,20 @@ public class IMDB {
         this.currentUser = currentUser;
     }
 
-    private void readUsers() throws IOException {
+    private int readUsers() throws IOException {
         ObjectMapper mapper = new ObjectMapper();
-        List<User.UnknownUser> unknownUserList = mapper.readValue(new File("input/accounts.json"), new TypeReference<List<User.UnknownUser>>() {});
+        List<User.UnknownUser> unknownUserList;
+        try {
+            unknownUserList = mapper.readValue(new File("input/accounts.json"), new TypeReference<List<User.UnknownUser>>() {});
+        } catch (ValueInstantiationException e) {
+            if (e.getCause() instanceof InformationIncompleteException e1) {
+                System.out.println(e1.getMessage());
+                return -1;
+            }
+
+            throw e;
+        }
+
         for (User.UnknownUser unknownUser : unknownUserList) {
             User<?> user = UserFactory.factory(unknownUser);
             switch (Objects.requireNonNull(user).getAccountType()) {
@@ -146,6 +158,8 @@ public class IMDB {
                 }
             }
         }
+
+        return 0;
     }
 
     private void readRequests() throws IOException {
@@ -220,7 +234,11 @@ public class IMDB {
         // Load input data
         this.readActors();
         this.readProductions();
-        this.readUsers();
+        if (this.readUsers() < 0) {
+            System.out.println("Reading the accounts file failed!");
+            return;
+        }
+
         this.readRequests();
 
         if (noGui) {

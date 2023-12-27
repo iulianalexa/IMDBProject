@@ -77,7 +77,7 @@ abstract public class Production implements Comparable<Object> {
     }
 
     public List<Rating> getRatings() {
-        return ratings;
+        return new ArrayList<>(ratings);
     }
 
     public Double getAverageRating() {
@@ -171,6 +171,10 @@ abstract public class Production implements Comparable<Object> {
 
     public void removeGenre(Genre genre) {
         this.genres.remove(genre);
+    }
+
+    public void removeRating(Rating rating) {
+        this.ratings.remove(rating);
     }
 }
 
