@@ -45,6 +45,14 @@ public class Series extends Production {
             s.append('\n');
         }
 
+        List<Rating> ratings = this.getRatings();
+        ratings.sort(null);
+        ratings = ratings.reversed();
+        for (Rating rating : ratings) {
+            s.append(rating);
+            s.append('\n');
+        }
+
         System.out.println(s);
     }
 

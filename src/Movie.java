@@ -1,5 +1,7 @@
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 
+import java.util.List;
+
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class Movie extends Production {
     private Integer releaseYear;
@@ -17,7 +19,7 @@ public class Movie extends Production {
 
     @Override
     public void displayInfo() {
-        System.out.println(
+        StringBuilder s = new StringBuilder(
                 "Title: " + super.getTitle() + '\n' +
                 "Plot: " + super.getPlot() + '\n' +
                 "Directors: " + super.getDirectors() + '\n' +
@@ -28,6 +30,16 @@ public class Movie extends Production {
                 "Release Year: " + releaseYear + '\n' +
                 "Duration: " + duration + '\n'
         );
+
+        List<Rating> ratings = this.getRatings();
+        ratings.sort(null);
+        ratings = ratings.reversed();
+        for (Rating rating : ratings) {
+            s.append(rating);
+            s.append('\n');
+        }
+
+        System.out.println(s);
     }
 
     public void setReleaseYear(Integer releaseYear) {

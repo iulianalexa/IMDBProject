@@ -2,10 +2,9 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.*;
 
-// TODO: Strategy
 // TODO: Handle IO Exceptions in main
 // TODO: Warnings
-// TODO: Checker
+// TODO: Save on exit
 
 public class ConsoleApp {
     static int showProduction() throws InvalidCommandException {
@@ -361,7 +360,7 @@ public class ConsoleApp {
                             break;
                         }
 
-                        if (actor.getAddedBy().equals(IMDB.getInstance().getCurrentUser().getUsername()) && IMDB.getInstance().getCurrentUser().getAccountType() == AccountType.CONTRIBUTOR) {
+                        if (actor.getAddedBy() != null && actor.getAddedBy().equals(IMDB.getInstance().getCurrentUser().getUsername()) && IMDB.getInstance().getCurrentUser().getAccountType() == AccountType.CONTRIBUTOR) {
                             throw new InvalidCommandException("You cannot open a request on your own contribution!");
                         }
 

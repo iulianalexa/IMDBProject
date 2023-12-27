@@ -46,11 +46,14 @@ abstract public class Staff<T extends Comparable<Object>> extends User<T> implem
         } else if (p instanceof Series series) {
             IMDB.getInstance().addSeries(series);
         }
+
+        this.awardExperience(new NewContributionExperienceStrategy());
     }
 
     @Override
     public void addActorSystem(Actor a) {
         IMDB.getInstance().addActor(a);
+        this.awardExperience(new NewContributionExperienceStrategy());
     }
 
     @Override
@@ -120,7 +123,11 @@ abstract public class Staff<T extends Comparable<Object>> extends User<T> implem
 
     @Override
     public void solveRequest(Request request) {
-        // TODO: Award experience
+        User<?> author = IMDB.getInstance().getUser(request.getAuthorUsername());
+        if (author != null && (request.getType() == RequestType.ACTOR_ISSUE || request.getType() == RequestType.MOVIE_ISSUE)) {
+            author.awardExperience(new SolvedIssueExperienceStrategy());
+        }
+
         this.closeRequest(request, true);
     }
 

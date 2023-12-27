@@ -2,7 +2,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Rating implements Subject {
+public class Rating implements Subject, Comparable<Rating> {
     private String username, comment;
     private Integer rating;
 
@@ -62,5 +62,24 @@ public class Rating implements Subject {
                 observer.update(message);
             }
         }
+    }
+
+    @Override
+    public int compareTo(Rating otherRating) {
+        User<?> author = IMDB.getInstance().getUser(username);
+        User<?> otherAuthor = IMDB.getInstance().getUser(otherRating.getUsername());
+        if (author == null && otherAuthor == null) {
+            return 0;
+        }
+
+        if (author == null) {
+            return -1;
+        }
+
+        if (otherAuthor == null) {
+            return -1;
+        }
+
+        return Integer.compare(author.getExperience(), otherAuthor.getExperience());
     }
 }

@@ -229,6 +229,12 @@ abstract public class User<T extends Comparable<Object>> implements Observer {
         IMDB.getInstance().logout();
     }
 
+    public void awardExperience(ExperienceStrategy strategy) {
+        if (accountType != AccountType.ADMIN) {
+            experience += strategy.calculateExperience();
+        }
+    }
+
     @Override
     public void update(String message) {
         notificationList.add(message);
