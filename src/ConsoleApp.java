@@ -2,6 +2,11 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.*;
 
+// TODO: Notify
+// TODO: Strategy
+// TODO: Exception #2
+// TODO: Handle IO Exceptions in main
+
 public class ConsoleApp {
     static int showProduction() throws InvalidCommandException {
         ArrayList<Genre> genres = new ArrayList<>();

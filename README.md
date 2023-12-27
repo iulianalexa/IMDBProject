@@ -1,1 +1,1 @@
-Hours spent: 16.5
+Hours spent: 18.5
