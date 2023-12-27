@@ -18,25 +18,6 @@ public class Actor implements Comparable<Object> {
         throw new RuntimeException();
     }
 
-    @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
-    static private class Performance {
-        private String title;
-        private ProductionType type;
-
-        @Override
-        public String toString() {
-            return title;
-        }
-
-        private Performance() {}
-
-        public Performance(String title, ProductionType type) {
-            this();
-            this.title = title;
-            this.type = type;
-        }
-    }
-
     private String addedBy = null;
 
     private Actor() {}
@@ -58,7 +39,7 @@ public class Actor implements Comparable<Object> {
     }
 
     public List<Performance> getPerformances() {
-        return performances;
+        return new ArrayList<>(performances);
     }
 
     public String getAddedBy() {
@@ -89,10 +70,22 @@ public class Actor implements Comparable<Object> {
         if (!this.performances.isEmpty()) {
             s.append("Performances: " + '\n');
             for (Performance performance : this.performances) {
-                s.append(performance.title).append(" (").append(performance.type).append(")\n");
+                s.append(performance.getTitle()).append(" (").append(performance.getType()).append(")\n");
             }
         }
 
         System.out.println(s);
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setBiography(String biography) {
+        this.biography = biography;
+    }
+
+    public void removePerformance(Performance performance) {
+        this.performances.remove(performance);
     }
 }

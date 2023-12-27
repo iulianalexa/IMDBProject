@@ -638,9 +638,502 @@ public class ConsoleApp {
         return 0;
     }
 
+    static int updateProductionActor() throws InvalidCommandException {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("0. Production");
+        System.out.println("1. Actor");
+        System.out.print("Your choice: ");
+        String choice = scanner.nextLine();
+        int n, selectionChoice;
+        switch (choice) {
+            case "0":
+                ArrayList<Production> productions = new ArrayList<>();
+                for (Movie movie : IMDB.getInstance().getMovieList()) {
+                    if ((movie.getAddedBy() != null && movie.getAddedBy().equals(IMDB.getInstance().getCurrentUser().getUsername())) || (movie.getAddedBy() == null && IMDB.getInstance().getCurrentUser().getAccountType() == AccountType.ADMIN)) {
+                        productions.add(movie);
+                    }
+                }
+
+                for (Series series : IMDB.getInstance().getSeriesList()) {
+                    if ((series.getAddedBy() != null && series.getAddedBy().equals(IMDB.getInstance().getCurrentUser().getUsername())) || (series.getAddedBy() == null && IMDB.getInstance().getCurrentUser().getAccountType() == AccountType.ADMIN)) {
+                        productions.add(series);
+                    }
+                }
+
+                n = 0;
+                for (Production production : productions) {
+                    System.out.printf("%d. %s\n", n, production.getTitle());
+                    n++;
+                }
+                System.out.printf("%d. Return\n", n);
+                System.out.print("Your choice: ");
+                try {
+                    selectionChoice = Integer.parseInt(scanner.nextLine());
+                } catch (NumberFormatException e) {
+                    throw new InvalidCommandException("Not a number.");
+                }
+
+                if (selectionChoice < 0 || selectionChoice > n) {
+                    throw new InvalidCommandException("Invalid choice. Please retry");
+                }
+
+                if (selectionChoice == n) {
+                    break;
+                }
+
+                Production production = productions.get(selectionChoice);
+                System.out.println("Update:");
+                System.out.println("0. Title");
+                System.out.println("1. Description");
+                System.out.println("2. Directors");
+                System.out.println("3. Actors");
+                System.out.println("4. Genres");
+                System.out.println("5. Release Year");
+                if (production.getType() == ProductionType.MOVIE) {
+                    System.out.println("6. Duration");
+                } else if (production.getType() == ProductionType.SERIES) {
+                    System.out.println("6. Number of seasons");
+                    System.out.println("7. Season list");
+                }
+                System.out.print("Your choice: ");
+                String productionField = scanner.nextLine();
+                switch (productionField) {
+                    case "0":
+                        System.out.print("New title: ");
+                        production.setTitle(scanner.nextLine());
+                        System.out.println("Updated title.");
+                        break;
+                    case "1":
+                        System.out.println("New description: ");
+                        production.setPlot(scanner.nextLine());
+                        System.out.println("Updated description.");
+                        break;
+                    case "2":
+                        System.out.println("0. Add Director");
+                        System.out.println("1. Remove Director");
+                        System.out.println("2. Return");
+                        System.out.print("Your choice: ");
+                        switch (scanner.nextLine()) {
+                            case "0":
+                                System.out.print("Director name: ");
+                                production.addDirector(scanner.nextLine());
+                                System.out.println("Added director.");
+                                break;
+                            case "1":
+                                int n1 = 0;
+                                for (String director : production.getDirectors()) {
+                                    System.out.printf("%d. %s\n", n1, director);
+                                    n1++;
+                                }
+                                System.out.printf("%d. Return\n", n1);
+                                int productionField1;
+                                try {
+                                    productionField1 = Integer.parseInt(scanner.nextLine());
+                                } catch (NumberFormatException e) {
+                                    throw new InvalidCommandException("Not a number.");
+                                }
+
+                                if (productionField1 < 0 || productionField1 > n1) {
+                                    throw new InvalidCommandException("Invalid choice. Please retry.");
+                                }
+
+                                if (productionField1 == n1) {
+                                    break;
+                                }
+
+                                production.removeDirector(production.getDirectors().get(productionField1));
+                                System.out.println("Removed director.");
+                                break;
+                            case "2":
+                                break;
+                            default:
+                                throw new InvalidCommandException("Invalid choice. Please retry.");
+                        }
+                        break;
+                    case "3":
+                        System.out.println("0. Add Actor");
+                        System.out.println("1. Remove Actor");
+                        System.out.println("2. Return");
+                        System.out.print("Your choice: ");
+                        switch (scanner.nextLine()) {
+                            case "0":
+                                System.out.print("Actor name: ");
+                                Actor actor = IMDB.getInstance().searchForActor(scanner.nextLine());
+                                if (actor == null) {
+                                    System.out.println("Actor was not found.");
+                                    break;
+                                }
+
+                                production.addActor(actor);
+                                System.out.println("Added actor.");
+                                break;
+                            case "1":
+                                int n1 = 0;
+                                for (Actor actor1 : production.getActors()) {
+                                    System.out.printf("%d. %s\n", n1, actor1.getName());
+                                    n1++;
+                                }
+                                System.out.printf("%d. Return\n", n1);
+                                int productionField3;
+                                try {
+                                    productionField3 = Integer.parseInt(scanner.nextLine());
+                                } catch (NumberFormatException e) {
+                                    throw new InvalidCommandException("Not a number.");
+                                }
+
+                                if (productionField3 < 0 || productionField3 > n1) {
+                                    throw new InvalidCommandException("Invalid choice. Please retry.");
+                                }
+
+                                if (productionField3 == n1) {
+                                    break;
+                                }
+
+                                production.removeActor(production.getActors().get(productionField3));
+                                System.out.println("Removed actor.");
+                                break;
+                            case "2":
+                                break;
+                            default:
+                                throw new InvalidCommandException("Invalid choice. Please retry.");
+                        }
+                        break;
+                    case "4":
+                        System.out.println("0. Add genre");
+                        System.out.println("1. Remove genre");
+                        System.out.println("2. Return");
+                        System.out.print("Your choice: ");
+                        switch (scanner.nextLine()) {
+                            case "0":
+                                System.out.println("Please select one of the following genres:");
+                                System.out.println(Arrays.toString(Genre.values()));
+                                System.out.print("Genre: ");
+                                Genre genre;
+                                try {
+                                    genre = Genre.valueOf(scanner.nextLine().toUpperCase());
+                                } catch (IllegalArgumentException e) {
+                                    throw new InvalidCommandException("Invalid genre.");
+                                }
+
+                                if (production.getGenres().contains(genre)) {
+                                    throw new InvalidCommandException("Genre already assigned.");
+                                }
+
+                                production.addGenre(genre);
+                                System.out.println("Genre added.");
+                                break;
+                            case "1":
+                                int n1 = 0;
+                                for (Genre genre1 : production.getGenres()) {
+                                    System.out.printf("%d. %s\n", n1, genre1);
+                                    n1++;
+                                }
+                                System.out.printf("%d. Return\n", n1);
+                                int productionField4;
+                                try {
+                                    productionField4 = Integer.parseInt(scanner.nextLine());
+                                } catch (NumberFormatException e) {
+                                    throw new InvalidCommandException("Not a number.");
+                                }
+
+                                if (productionField4 < 0 || productionField4 > n1) {
+                                    throw new InvalidCommandException("Invalid choice. Please retry.");
+                                }
+
+                                if (productionField4 == n1) {
+                                    break;
+                                }
+
+                                production.removeGenre(production.getGenres().get(productionField4));
+                                System.out.println("Removed genre.");
+                                break;
+                            case "2":
+                                break;
+                            default:
+                                throw new InvalidCommandException("Invalid choice. Please retry.");
+                        }
+                        break;
+                    case "5":
+                        System.out.print("Set release year: ");
+                        int productionField5;
+                        try {
+                            productionField5 = Integer.parseInt(scanner.nextLine());
+                        } catch (NumberFormatException e) {
+                            throw new InvalidCommandException("Not a number.");
+                        }
+
+                        if (production instanceof Movie movie) {
+                            movie.setReleaseYear(productionField5);
+                        } else if (production instanceof Series series) {
+                            series.setReleaseYear(productionField5);
+                        }
+
+                        System.out.println("Set release year.");
+                        break;
+                }
+
+                if (production instanceof Movie movie) {
+                    if (productionField.equals("6")) {
+                        System.out.print("New duration: ");
+                        movie.setDuration(scanner.nextLine());
+                        System.out.println("Set duration.");
+                    } else {
+                        throw new InvalidCommandException("Invalid choice. Please retry.");
+                    }
+                } else if (production instanceof Series series) {
+                    switch (productionField) {
+                        case "6":
+                            System.out.println("New number of seasons: ");
+                            int productionField7;
+                            try {
+                                productionField7 = Integer.parseInt(scanner.nextLine());
+                            } catch (NumberFormatException e) {
+                                throw new InvalidCommandException("Invalid choice. Please retry.");
+                            }
+
+                            series.setNumSeasons(productionField7);
+                            System.out.println("Set new number of seasons.");
+                            break;
+                        case "7":
+                            System.out.println("0. Add season");
+                            System.out.println("1. Edit season");
+                            System.out.println("2. Return");
+                            System.out.print("Your choice: ");
+                            switch (scanner.nextLine()) {
+                                case "0":
+                                    System.out.print("New season name: ");
+                                    series.addSeason(scanner.nextLine());
+                                    System.out.println("Added new season.");
+                                    break;
+                                case "1":
+                                    Map<String, List<Episode>> seasons = series.getSeasons();
+                                    for (String seasonName : series.getSeasons().keySet()) {
+                                        System.out.println(seasonName);
+                                    }
+
+                                    System.out.println("Please type the name of the season you would like to edit (case sensitive), or type nothing to return.");
+                                    System.out.print("Season name: ");
+                                    String productionField8 = scanner.nextLine();
+                                    if (productionField8.isEmpty()) {
+                                        break;
+                                    }
+
+                                    if (!seasons.containsKey(productionField8)) {
+                                        throw new InvalidCommandException("Season does not exist.");
+                                    }
+
+                                    List<Episode> season = seasons.get(productionField8);
+                                    System.out.println("0. Edit season name");
+                                    System.out.println("1. Edit episode list");
+                                    System.out.println("2. Return");
+                                    System.out.print("Your choice: ");
+                                    switch (scanner.nextLine()) {
+                                        case "0":
+                                            System.out.print("New season name: ");
+                                            series.changeSeasonName(productionField8, scanner.nextLine());
+                                            System.out.println("Season name changed.");
+                                            break;
+                                        case "1":
+                                            int n1 = 0;
+                                            for (Episode episode : season) {
+                                                System.out.printf("%d. %s\n", n1, episode.getEpisodeName());
+                                                n1++;
+                                            }
+                                            System.out.printf("%d. Return\n", n1);
+                                            System.out.print("Your choice: ");
+                                            int productionField9;
+                                            try {
+                                                productionField9 = Integer.parseInt(scanner.nextLine());
+                                            } catch (NumberFormatException e) {
+                                                throw new InvalidCommandException("Not a number.");
+                                            }
+
+                                            if (productionField9 < 0 || productionField9 > n1) {
+                                                throw new InvalidCommandException("Invalid choice. Please retry.");
+                                            }
+
+                                            if (productionField9 == n1) {
+                                                break;
+                                            }
+
+                                            Episode episode = season.get(productionField9);
+                                            System.out.println(episode);
+                                            System.out.println("0. Change episode name");
+                                            System.out.println("1. Change episode duration");
+                                            System.out.println("2. Remove");
+                                            System.out.println("3. Return");
+                                            System.out.print("Your choice: ");
+                                            switch (scanner.nextLine()) {
+                                                case "0":
+                                                    System.out.print("New episode name: ");
+                                                    episode.setEpisodeName(scanner.nextLine());
+                                                    System.out.println("Episode name set.");
+                                                    break;
+                                                case "1":
+                                                    System.out.println("New episode duration: ");
+                                                    episode.setDuration(scanner.nextLine());
+                                                    System.out.println("Episode duration set.");
+                                                    break;
+                                                case "2":
+                                                    season.remove(episode);
+                                                    System.out.println("Episode removed.");
+                                                    break;
+                                                case "3":
+                                                    break;
+                                                default:
+                                                    throw new InvalidCommandException("Invalid choice. Please try again.");
+                                            }
+                                            break;
+                                        case "2":
+                                            break;
+                                        default:
+                                            throw new InvalidCommandException("Invalid choice. Please retry.");
+                                    }
+                                    break;
+                                case "2":
+                                    break;
+                                default:
+                                    throw new InvalidCommandException("Invalid choice. Please retry.");
+                            }
+                            break;
+                        default:
+                            throw new InvalidCommandException("Invalid choice. Please retry.");
+                    }
+                }
+
+                break;
+            case "1":
+                ArrayList<Actor> actors = new ArrayList<>();
+                for (Actor actor : IMDB.getInstance().getActors()) {
+                    if ((actor.getAddedBy() != null && actor.getAddedBy().equals(IMDB.getInstance().getCurrentUser().getUsername())) || (actor.getAddedBy() == null && IMDB.getInstance().getCurrentUser().getAccountType() == AccountType.ADMIN)) {
+                        actors.add(actor);
+                    }
+                }
+
+                n = 0;
+                for (Actor actor : actors) {
+                    System.out.printf("%d. %s\n", n, actor.getName());
+                    n++;
+                }
+                System.out.printf("%d. Return\n", n);
+                System.out.print("Your choice: ");
+
+                int actorIndex;
+                try {
+                    actorIndex = Integer.parseInt(scanner.nextLine());
+                } catch (NumberFormatException e) {
+                    throw new InvalidCommandException("Not a number.");
+                }
+
+                if (actorIndex < 0 || actorIndex > n) {
+                    throw new InvalidCommandException("Invalid choice. Please retry.");
+                }
+
+                Actor actor = actors.get(actorIndex);
+                actor.displayFullInfo();
+                System.out.println("Update actor:");
+                System.out.println("0. Name");
+                System.out.println("1. Biography");
+                System.out.println("2. Performances");
+                System.out.print("Your choice: ");
+                switch (scanner.nextLine()) {
+                    case "0":
+                        System.out.print("New name: ");
+                        actor.setName(scanner.nextLine());
+                        System.out.println("Set name.");
+                        break;
+                    case "1":
+                        System.out.print("New biography: ");
+                        actor.setBiography(scanner.nextLine());
+                        System.out.println("Set biography.");
+                        break;
+                    case "2":
+                        System.out.println("0. Add performance");
+                        System.out.println("1. Update existing");
+                        System.out.println("2. Return");
+                        System.out.print("Your choice: ");
+                        switch (scanner.nextLine()) {
+                            case "0":
+                                System.out.println("Type:");
+                                System.out.println("0. Movie");
+                                System.out.println("1. Series");
+                                System.out.print("Your choice: ");
+                                ProductionType type = switch (scanner.nextLine()) {
+                                    case "0" -> ProductionType.MOVIE;
+                                    case "1" -> ProductionType.SERIES;
+                                    default -> throw new InvalidCommandException("Invaild choice. Please retry.");
+                                };
+
+                                System.out.print("Title: ");
+                                String title = scanner.nextLine();
+                                actor.addPerformance(title, type);
+                                System.out.println("Added performance.");
+                                break;
+                            case "1":
+                                int n1 = 0;
+                                for (Performance performance : actor.getPerformances()) {
+                                    System.out.printf("%d. %s (%s)\n", n1, performance.getTitle(), performance.getType());
+                                    n1++;
+                                }
+                                System.out.printf("%d. Return\n", n1);
+
+                                int performanceIndex;
+                                try {
+                                    performanceIndex = Integer.parseInt(scanner.nextLine());
+                                } catch (NumberFormatException e) {
+                                    throw new InvalidCommandException("Not a number.");
+                                }
+
+                                if (performanceIndex < 0 || performanceIndex > n1) {
+                                    throw new InvalidCommandException("Invalid choice. Please retry.");
+                                }
+
+                                if (performanceIndex == n1) {
+                                    break;
+                                }
+
+                                Performance performance = actor.getPerformances().get(performanceIndex);
+                                System.out.println("0. Change title");
+                                System.out.println("1. Remove");
+                                System.out.println("2. Return");
+                                System.out.print("Your choice: ");
+                                switch (scanner.nextLine()) {
+                                    case "0":
+                                        System.out.print("New title: ");
+                                        performance.setTitle(scanner.nextLine());
+                                        System.out.println("Set title.");
+                                        break;
+                                    case "1":
+                                        actor.removePerformance(performance);
+                                        System.out.println("Removed performance.");
+                                        break;
+                                    case "2":
+                                        break;
+                                    default:
+                                        throw new InvalidCommandException("Invalid choice. Please retry.");
+                                }
+
+                                break;
+                            case "2":
+                                break;
+                            default:
+                                throw new InvalidCommandException("Invalid choice. Please retry.");
+                        }
+
+                    default:
+                        throw new InvalidCommandException("Invalid choice. Please retry.");
+                }
+                break;
+            default:
+                throw new InvalidCommandException("Invalid choice. Please retry.");
+        }
+
+        return 0;
+    }
+
     static void runConsole() throws IOException {
         Scanner scanner = new Scanner(System.in);
-        User user;
+        User<?> user;
 
         System.out.println("hi! please log in.");
         while (true) {

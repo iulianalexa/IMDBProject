@@ -72,6 +72,12 @@ public class Commands {
                         Arrays.asList(AccountType.CONTRIBUTOR, AccountType.ADMIN),
                         ConsoleApp::manageStaffRequests,
                         "View and solve staff requests"
+                ),
+
+                new Command(
+                        Arrays.asList(AccountType.CONTRIBUTOR, AccountType.ADMIN),
+                        ConsoleApp::updateProductionActor,
+                        "Update a production/actor"
                 )
         };
     }

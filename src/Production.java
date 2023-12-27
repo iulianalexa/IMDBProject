@@ -69,11 +69,11 @@ abstract public class Production implements Comparable<Object> {
     }
 
     public List<String> getDirectors() {
-        return directors;
+        return new ArrayList<>(directors);
     }
 
     public List<Actor> getActors() {
-        return actors;
+        return new ArrayList<>(actors);
     }
 
     public List<Rating> getRatings() {
@@ -89,7 +89,7 @@ abstract public class Production implements Comparable<Object> {
     }
 
     public List<Genre> getGenres() {
-        return genres;
+        return new ArrayList<>(genres);
     }
 
     public abstract void displayInfo();
@@ -139,6 +139,38 @@ abstract public class Production implements Comparable<Object> {
 
     public void setAddedBy(String addedBy) {
         this.addedBy = addedBy;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public void setPlot(String plot) {
+        this.plot = plot;
+    }
+
+    public void addDirector(String name) {
+        this.directors.add(name);
+    }
+
+    public void removeDirector(String name) {
+        this.directors.remove(name);
+    }
+
+    public void addActor(Actor actor) {
+        this.actors.add(actor);
+    }
+
+    public void removeActor(Actor actor) {
+        this.actors.remove(actor);
+    }
+
+    public void addGenre(Genre genre) {
+        this.genres.add(genre);
+    }
+
+    public void removeGenre(Genre genre) {
+        this.genres.remove(genre);
     }
 }
 

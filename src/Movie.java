@@ -29,4 +29,12 @@ public class Movie extends Production {
                 "Duration: " + duration + '\n'
         );
     }
+
+    public void setReleaseYear(Integer releaseYear) {
+        this.releaseYear = releaseYear;
+    }
+
+    public void setDuration(String duration) {
+        this.duration = duration;
+    }
 }
