@@ -2,7 +2,6 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.*;
 
-// TODO: Notify
 // TODO: Strategy
 // TODO: Handle IO Exceptions in main
 // TODO: Warnings
@@ -634,7 +633,7 @@ public class ConsoleApp {
                 staff.solveRequest(request);
                 break;
             case "1":
-                staff.closeRequest(request);
+                staff.closeRequest(request, false);
                 break;
             case "2":
                 break;

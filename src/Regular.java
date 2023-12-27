@@ -9,12 +9,17 @@ public class Regular<T extends Comparable<Object>> extends User<T> implements Re
     @Override
     public void createRequest(Request r) {
         IMDB.getInstance().addRequest(r);
+        r.subscribe("author", this);
         if (r.getHasAssigned()) {
             User<?> assignedUser = IMDB.getInstance().getUser(r.getAssignedUsername());
             if (!(assignedUser instanceof Staff<?> assignedStaff)) {
                 return;
             }
 
+            r.subscribe("assigned", assignedUser);
+            r.sendNotification("assigned", String.format(
+                    "You received a new request by %s!", this.getUsername()
+            ));
             assignedStaff.addRequest(r);
         } else {
             RequestsHolder.addAdminRequest(r);
@@ -50,11 +55,11 @@ public class Regular<T extends Comparable<Object>> extends User<T> implements Re
 
     void rate(Production production, Integer score, String comment) {
         Rating rating = new Rating(this.getUsername(), comment, score);
-        rating.subscribe(this);
+        rating.subscribe("regular", this);
         if (production.getAddedBy() != null) {
             User<?> adder = IMDB.getInstance().getUser(production.getAddedBy());
             if (adder != null) {
-                rating.subscribe(adder);
+                rating.subscribe("contributor", adder);
             }
         }
 

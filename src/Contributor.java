@@ -9,12 +9,17 @@ public class Contributor<T extends Comparable<Object>> extends Staff<T> implemen
     @Override
     public void createRequest(Request r) {
         IMDB.getInstance().addRequest(r);
+        r.subscribe("author", this);
         if (r.getHasAssigned()) {
             User<?> assignedUser = IMDB.getInstance().getUser(r.getAssignedUsername());
             if (!(assignedUser instanceof Staff<?> assignedStaff)) {
                 return;
             }
 
+            r.subscribe("assigned", assignedUser);
+            r.sendNotification("assigned", String.format(
+                    "You received a new request by %s!", this.getUsername()
+            ));
             assignedStaff.addRequest(r);
         } else {
             RequestsHolder.addAdminRequest(r);

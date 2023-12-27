@@ -1,5 +1,5 @@
 public interface Subject {
-    void subscribe(Observer observer);
-    void unsubscribe(Observer observer);
+    void subscribe(String observerType, Observer observer);
+    void unsubscribe(String observerType, Observer observer);
     void sendNotification(String notificationType, String message);
 }

@@ -105,8 +105,14 @@ abstract public class Staff<T extends Comparable<Object>> extends User<T> implem
     }
 
     @Override
-    public void closeRequest(Request request) {
-        // TODO: Notify
+    public void closeRequest(Request request, boolean solved) {
+        if (solved) {
+            request.sendNotification("author",
+                    "One of your requests has been accepted and closed!");
+        } else {
+            request.sendNotification("author",
+                    "One of your requests has been rejected and closed.");
+        }
         this.requestList.remove(request);
         IMDB.getInstance().removeRequest(request);
         RequestsHolder.removeAdminRequest(request);
@@ -115,7 +121,7 @@ abstract public class Staff<T extends Comparable<Object>> extends User<T> implem
     @Override
     public void solveRequest(Request request) {
         // TODO: Award experience
-        this.closeRequest(request);
+        this.closeRequest(request, true);
     }
 
     public List<Request> getRequestList() {

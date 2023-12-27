@@ -1,10 +1,12 @@
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Rating implements Subject {
     private String username, comment;
     private Integer rating;
 
-    private ArrayList<Observer> observers = new ArrayList<>();
+    private final Map<String, ArrayList<Observer>> observers = new HashMap<>();
 
     public Rating() {}
 
@@ -32,32 +34,33 @@ public class Rating implements Subject {
     }
 
     @Override
-    public void subscribe(Observer observer) {
-        observers.add(observer);
+    public void subscribe(String observerType, Observer observer) {
+        if (!observers.containsKey(observerType)) {
+            observers.put(observerType, new ArrayList<>());
+        }
+
+        ArrayList<Observer> subObservers = observers.get(observerType);
+        subObservers.add(observer);
     }
 
     @Override
-    public void unsubscribe(Observer observer) {
-        observers.remove(observer);
+    public void unsubscribe(String observerType, Observer observer) {
+        ArrayList<Observer> subObservers = observers.get(observerType);
+        if (subObservers != null) {
+            subObservers.remove(observer);
+            if (subObservers.isEmpty()) {
+                observers.remove(observerType);
+            }
+        }
     }
 
     @Override
     public void sendNotification(String notificationType, String message) {
-        switch (notificationType) {
-            case "regular":
-                for (Observer observer : observers) {
-                    if (observer instanceof Regular<?>) {
-                        observer.update(message);
-                    }
-                }
-                break;
-            case "contributor":
-                for (Observer observer : observers) {
-                    if (observer instanceof Contributor<?>) {
-                        observer.update(message);
-                    }
-                }
-                break;
+        ArrayList<Observer> subObservers = observers.get(notificationType);
+        if (subObservers != null) {
+            for (Observer observer : subObservers) {
+                observer.update(message);
+            }
         }
     }
 }

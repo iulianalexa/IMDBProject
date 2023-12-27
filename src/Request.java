@@ -10,9 +10,13 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
-public class Request {
+public class Request implements Subject {
+    private final Map<String, ArrayList<Observer>> observers = new HashMap<>();
     private RequestType type;
     @JsonDeserialize(using = CustomRequestsDeserializer.class)
     private LocalDateTime createdDate;
@@ -59,10 +63,16 @@ public class Request {
 
     @Override
     public String toString() {
-        return "TYPE: " + type + '\n' +
+        StringBuilder s = new StringBuilder("TYPE: " + type + '\n' +
                 "BY: " + authorUsername + '\n' +
-                "TO: " + assignedUsername + '\n' +
-                "DESCRIPTION: " + description;
+                "TO: " + assignedUsername + '\n');
+
+        if (targetName != null) {
+            s.append("ABOUT: ").append(targetName).append('\n');
+        }
+
+        s.append("DESCRIPTION: ").append(description);
+        return s.toString();
     }
 
     @JsonAnySetter
@@ -74,6 +84,37 @@ public class Request {
 
     public void setTargetName(String targetName) {
         this.targetName = targetName;
+    }
+
+    @Override
+    public void subscribe(String observerType, Observer observer) {
+        if (!observers.containsKey(observerType)) {
+            observers.put(observerType, new ArrayList<>());
+        }
+
+        ArrayList<Observer> subObservers = observers.get(observerType);
+        subObservers.add(observer);
+    }
+
+    @Override
+    public void unsubscribe(String observerType, Observer observer) {
+        ArrayList<Observer> subObservers = observers.get(observerType);
+        if (subObservers != null) {
+            subObservers.remove(observer);
+            if (subObservers.isEmpty()) {
+                observers.remove(observerType);
+            }
+        }
+    }
+
+    @Override
+    public void sendNotification(String notificationType, String message) {
+        ArrayList<Observer> subObservers = observers.get(notificationType);
+        if (subObservers != null) {
+            for (Observer observer : subObservers) {
+                observer.update(message);
+            }
+        }
     }
 }
 
