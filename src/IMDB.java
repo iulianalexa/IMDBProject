@@ -27,31 +27,38 @@ public class IMDB {
     }
 
     public List<Regular<?>> getRegulars() {
-        return regulars;
+        return new ArrayList<>(regulars);
     }
 
     public List<Contributor<?>> getContributors() {
-        return contributors;
+        return new ArrayList<>(contributors);
     }
 
     public List<Admin<?>> getAdmins() {
-        return admins;
+        return new ArrayList<>(admins);
     }
 
     public List<Request> getRequestList() {
-        return requestList;
+        return new ArrayList<>(requestList);
     }
 
     public List<Movie> getMovieList() {
-        return movieList;
+        return new ArrayList<>(movieList);
     }
 
     public List<Series> getSeriesList() {
-        return seriesList;
+        return new ArrayList<>(seriesList);
+    }
+
+    public List<Production> getProductionList() {
+        ArrayList<Production> productions = new ArrayList<>(movieList);
+        productions.addAll(seriesList);
+        productions.sort(null);
+        return productions;
     }
 
     public List<Actor> getActors() {
-        return actors;
+        return new ArrayList<>(actors);
     }
 
     public void addActor(Actor actor) {
@@ -224,7 +231,7 @@ public class IMDB {
     }
 
     public void run() {
-        boolean noGui = true;
+        boolean noGui = false;
 
         // Load input data
         try {
@@ -244,6 +251,8 @@ public class IMDB {
 
         if (noGui) {
             ConsoleApp.runConsole();
+        } else {
+            new GUIAuthFrame();
         }
     }
 

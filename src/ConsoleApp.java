@@ -8,8 +8,7 @@ public class ConsoleApp {
     static int showProduction() throws InvalidCommandException {
         ArrayList<Genre> genres = new ArrayList<>();
         Integer minimumReviewCount = 0;
-        ArrayList<Production> productions = new ArrayList<>(IMDB.getInstance().getMovieList());
-        productions.addAll(IMDB.getInstance().getSeriesList());
+        List<Production> productions = IMDB.getInstance().getProductionList();
 
         label:
         while (true) {
