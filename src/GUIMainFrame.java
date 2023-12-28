@@ -248,6 +248,40 @@ public class GUIMainFrame extends JFrame {
         return newPanel;
     }
 
+    private <T extends Comparable<Object>> JButton getFavoritesButton(T content, Class<T> tClass) {
+        JButton addButton = new JButton("Add to Favorites");
+        JButton removeButton = new JButton("Remove from Favorites");
+
+        @SuppressWarnings("unchecked")
+        User<T> user = (User<T>) IMDB.getInstance().getCurrentUser();
+
+        addButton.addActionListener(e -> {
+            user.addToFavourites(content);
+            if (Production.class.isAssignableFrom(tClass)) {
+                viewProduction((Production) content);
+            } else if (Actor.class.isAssignableFrom(tClass)) {
+                viewActor((Actor) content);
+            }
+        });
+
+        removeButton.addActionListener(e -> {
+            user.removeFromFavourites(content);
+            if (Production.class.isAssignableFrom(tClass)) {
+                viewProduction((Production) content);
+            } else if (Actor.class.isAssignableFrom(tClass)) {
+                viewActor((Actor) content);
+            }
+        });
+
+        if (user.getFavorites().contains(content)) {
+            // In favorites
+            return removeButton;
+        }
+
+        // Not in favorites
+        return addButton;
+    }
+
     public void viewProduction(Production production) {
         int releaseYear = getReleaseYear(production);
         JPanel mainPage = this.mainPage;
@@ -261,11 +295,11 @@ public class GUIMainFrame extends JFrame {
         // Buttons
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         JButton backButton = new JButton("Go back");
-        JButton addToFavoritesButton = new JButton("Add to Favorites");
+        JButton favoritesButton = getFavoritesButton(production, Production.class);
         JButton addReviewButton = new JButton("Add review");
 
         buttonPanel.add(backButton);
-        buttonPanel.add(addToFavoritesButton);
+        buttonPanel.add(favoritesButton);
         buttonPanel.add(addReviewButton);
 
         currentPanel = addToNorth(currentPanel, buttonPanel);
@@ -310,10 +344,10 @@ public class GUIMainFrame extends JFrame {
         // Buttons
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         JButton backButton = new JButton("Go back");
-        JButton addToFavoritesButton = new JButton("Add to Favorites");
+        JButton favoritesButton = getFavoritesButton(actor, Actor.class);
 
         buttonPanel.add(backButton);
-        buttonPanel.add(addToFavoritesButton);
+        buttonPanel.add(favoritesButton);
 
         currentPanel = addToNorth(currentPanel, buttonPanel);
 
