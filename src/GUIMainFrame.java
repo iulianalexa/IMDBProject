@@ -96,10 +96,12 @@ public class GUIMainFrame extends JFrame {
         JButton filterButton = new JButton("Filter");
         JButton searchButton = new JButton("Search");
         JButton actorsButton = new JButton("View Actors");
+        JButton menuButton = new JButton("Menu");
 
         buttonToolbarPanel.add(filterButton);
         buttonToolbarPanel.add(searchButton);
         buttonToolbarPanel.add(actorsButton);
+        buttonToolbarPanel.add(menuButton);
         mainPage.add(buttonToolbarPanel, BorderLayout.NORTH);
         mainPage.add(scrollPane, BorderLayout.CENTER);
         mainPage.updateUI();
@@ -109,6 +111,8 @@ public class GUIMainFrame extends JFrame {
         searchButton.addActionListener(e -> new GUISearchPopup(this));
 
         actorsButton.addActionListener(e -> viewActorsPage());
+
+        menuButton.addActionListener(e -> viewMenuPage());
     }
 
     public void viewActorsPage() {
@@ -140,6 +144,73 @@ public class GUIMainFrame extends JFrame {
                 Actor selectedValue = actorsJList.getSelectedValue();
 
                 this.viewActor(selectedValue);
+            }
+        });
+
+        // Create button toolbar
+        JPanel buttonToolbarPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JButton backButton = new JButton("Go Back");
+
+        buttonToolbarPanel.add(backButton);
+        mainPage.add(buttonToolbarPanel, BorderLayout.NORTH);
+        mainPage.add(scrollPane, BorderLayout.CENTER);
+        mainPage.updateUI();
+
+        backButton.addActionListener(e -> {
+            this.viewFrontPage();
+        });
+    }
+
+    private enum MenuItemType {
+        VIEW_NOTIFICATIONS
+    }
+
+    private static class MenuItem {
+        String description;
+        MenuItemType type;
+
+        public MenuItem(String description, MenuItemType type) {
+            this.description = description;
+            this.type = type;
+        }
+
+        @Override
+        public String toString() {
+            return this.description;
+        }
+    }
+
+    public void viewMenuPage() {
+        JPanel mainPage = this.mainPage;
+        List<Genre> filteredGenres = this.filteredGenres;
+        int minimumReviewCount = this.minimumReviewCount;
+
+        mainPage.removeAll();
+        mainPage.setLayout(new BorderLayout());
+
+        DefaultListModel<MenuItem> listModel = new DefaultListModel<>();
+        JList<MenuItem> jList = new JList<>(listModel);
+
+        // View Notifications
+        listModel.addElement(new MenuItem("View Notifications", MenuItemType.VIEW_NOTIFICATIONS));
+
+        // Create a scroll pane for the JList
+        JScrollPane scrollPane = new JScrollPane(jList);
+
+        // Set up selection mode to allow single selection
+        jList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+        // Add a list selection listener to respond to item clicks
+        jList.addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) {
+                // Get the selected value
+                MenuItem selectedValue = jList.getSelectedValue();
+
+                switch (selectedValue.type) {
+                    case VIEW_NOTIFICATIONS:
+                        new GUINotificationListPopup();
+                        break;
+                }
             }
         });
 
