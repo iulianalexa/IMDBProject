@@ -27,6 +27,7 @@ public class GUIMainFrame extends JFrame {
 
     public static void viewFrontPage(JPanel mainPage) {
         mainPage.removeAll();
+        mainPage.setLayout(new BorderLayout());
 
         List<Production> productionsList = IMDB.getInstance().getProductionList();
         Production[] productionsArr = new Production[productionsList.size()];
@@ -68,14 +69,84 @@ public class GUIMainFrame extends JFrame {
 
     public static void viewProduction(JPanel mainPage, Production production) {
         mainPage.removeAll();
+        mainPage.setLayout(new BorderLayout());
+
+        // Row 1: Buttons
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         JButton backButton = new JButton("Go back");
+        JButton addToFavoritesButton = new JButton("Add to Favorites");
+        JButton addReviewButton = new JButton("Add review");
+
+        buttonPanel.add(backButton);
+        buttonPanel.add(addToFavoritesButton);
+        buttonPanel.add(addReviewButton);
+
+        mainPage.add(buttonPanel, BorderLayout.NORTH);
+
+        // Row 2: Title
+        JPanel titleAndInfoPanel = new JPanel(new BorderLayout());
         JLabel titleLabel = new JLabel(production.getTitle());
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 20));
+        titleAndInfoPanel.add(titleLabel, BorderLayout.NORTH);
+
+        // Row 3: Description
+        JTextArea descriptionTextArea = new JTextArea(production.getPlot());
+        descriptionTextArea.setFont(new Font("Arial", Font.PLAIN, 14));
+        descriptionTextArea.setLineWrap(true);
+        descriptionTextArea.setWrapStyleWord(true);
+        descriptionTextArea.setOpaque(false);
+        descriptionTextArea.setEditable(false);
+
+        JPanel infoPanel = new JPanel();
+        infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
+        infoPanel.add(descriptionTextArea);
+        infoPanel.add(getDirectorsPanel(production));
+        infoPanel.add(getGenresPanel(production));
+
+        titleAndInfoPanel.add(infoPanel, BorderLayout.CENTER);
+
+        mainPage.add(titleAndInfoPanel, BorderLayout.CENTER);
+
+        // Align the container to the left
+        mainPage.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         backButton.addActionListener(e -> viewFrontPage(mainPage));
 
-        mainPage.add(backButton, BorderLayout.NORTH);
-        mainPage.add(titleLabel, BorderLayout.CENTER);
         mainPage.updateUI();
+    }
+
+    public static JPanel getDirectorsPanel(Production production) {
+        JPanel container = new JPanel();
+        container.setLayout(new BoxLayout(container, BoxLayout.Y_AXIS));
+        JLabel label = new JLabel("Producers");
+
+        List<String> directorsList = production.getDirectors();
+        String[] directorsArr = new String[directorsList.size()];
+        directorsList.toArray(directorsArr);
+        JList<String> directorsJList = new JList<>(directorsArr);
+
+        JScrollPane scrollPane = new JScrollPane(directorsJList);
+        container.add(label);
+        container.add(scrollPane);
+
+        return container;
+    }
+
+    public static JPanel getGenresPanel(Production production) {
+        JPanel container = new JPanel();
+        container.setLayout(new BoxLayout(container, BoxLayout.Y_AXIS));
+        JLabel label = new JLabel("Genres");
+
+        List<Genre> genreList = production.getGenres();
+        Genre[] genreArr = new Genre[genreList.size()];
+        genreList.toArray(genreArr);
+        JList<Genre> genreJList = new JList<>(genreArr);
+
+        JScrollPane scrollPane = new JScrollPane(genreJList);
+        container.add(label);
+        container.add(scrollPane);
+
+        return container;
     }
 
     public static void refreshHeader(JPanel header) {
