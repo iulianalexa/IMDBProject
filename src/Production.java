@@ -13,6 +13,9 @@ abstract public class Production implements Comparable<Object> {
     private String title, plot;
     private final List<String> directors = new ArrayList<>();
 
+    // Users that have rated this production at some point
+    private final List<User<?>> awardedUsers = new ArrayList<>();
+
     @JsonDeserialize(using = CustomProductionDeserializer.class)
     private List<Actor> actors = new ArrayList<>();
     private final List<Genre> genres = new ArrayList<>();
@@ -131,6 +134,14 @@ abstract public class Production implements Comparable<Object> {
 
     public void removeRating(Rating rating) {
         this.ratings.remove(rating);
+    }
+
+    public List<User<?>> getAwardedUsers() {
+        return new ArrayList<>(awardedUsers);
+    }
+
+    public void addAwardedUser(User<?> user) {
+        awardedUsers.add(user);
     }
 }
 

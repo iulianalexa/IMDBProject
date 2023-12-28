@@ -2,7 +2,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Regular<T extends Comparable<Object>> extends User<T> implements RequestsManager {
-    List<String> awardsFromProductions = new ArrayList<>();
     public Regular(User.UnknownUser unknownUser) {
         super(unknownUser);
     }
@@ -74,8 +73,8 @@ public class Regular<T extends Comparable<Object>> extends User<T> implements Re
                 production.getTitle(), score
         ));
 
-        if (!awardsFromProductions.contains(production.getTitle())) {
-            awardsFromProductions.add(production.getTitle());
+        if (!production.getAwardedUsers().contains(this)) {
+            production.addAwardedUser(this);
             this.awardExperience(new NewRatingExperienceStrategy());
         }
 
