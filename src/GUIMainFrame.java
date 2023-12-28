@@ -1,10 +1,15 @@
 import javax.swing.*;
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class GUIMainFrame extends JFrame {
-    JPanel header = new JPanel();
-    JPanel mainPage = new JPanel(new BorderLayout());
+    private JPanel header = new JPanel();
+    private JPanel mainPage = new JPanel(new BorderLayout());
+
+    private List<Genre> filteredGenres = new ArrayList<>();
+    private int minimumReviewCount = 0;
 
     public GUIMainFrame() {
         super("IMDB");
@@ -20,16 +25,38 @@ public class GUIMainFrame extends JFrame {
         // Add Main Page
         add(mainPage, BorderLayout.CENTER);
 
-        viewFrontPage(mainPage);
+        viewFrontPage(this);
         refreshHeader(header);
         setVisible(true);
     }
 
-    public static void viewFrontPage(JPanel mainPage) {
+    public void updateFilters(List<Genre> filteredGenres, int minimumReviewCount) {
+        this.filteredGenres = filteredGenres;
+        this.minimumReviewCount = minimumReviewCount;
+        viewFrontPage(this);
+    }
+
+    public static List<Production> getProductionsListFromFilterCriteria(List<Genre> filteredGenres, int minimumReviewCount) {
+        List<Production> totalProductionsList = IMDB.getInstance().getProductionList();
+        List<Production> filteredProductionsList = new ArrayList<>();
+        for (Production production : totalProductionsList) {
+            if ((filteredGenres.isEmpty() || !Collections.disjoint(filteredGenres, production.getGenres())) && production.getReviewCount() >= minimumReviewCount) {
+                filteredProductionsList.add(production);
+            }
+        }
+
+        return filteredProductionsList;
+    }
+
+    public static void viewFrontPage(GUIMainFrame mainFrame) {
+        JPanel mainPage = mainFrame.mainPage;
+        List<Genre> filteredGenres = mainFrame.filteredGenres;
+        int minimumReviewCount = mainFrame.minimumReviewCount;
+
         mainPage.removeAll();
         mainPage.setLayout(new BorderLayout());
 
-        List<Production> productionsList = IMDB.getInstance().getProductionList();
+        List<Production> productionsList = getProductionsListFromFilterCriteria(filteredGenres, minimumReviewCount);
         Production[] productionsArr = new Production[productionsList.size()];
         productionsList.toArray(productionsArr);
         JList<Production> productionsJList = new JList<>(productionsArr);
@@ -59,15 +86,27 @@ public class GUIMainFrame extends JFrame {
                 // Get the selected value
                 Production selectedValue = productionsJList.getSelectedValue();
 
-                viewProduction(mainPage, selectedValue);
+                viewProduction(mainFrame, selectedValue);
             }
         });
 
+        // Create button toolbar
+        JPanel buttonToolbarPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JButton filterButton = new JButton("Filter");
+
+        buttonToolbarPanel.add(filterButton);
+        mainPage.add(buttonToolbarPanel, BorderLayout.NORTH);
         mainPage.add(scrollPane, BorderLayout.CENTER);
         mainPage.updateUI();
+
+        filterButton.addActionListener(e -> {
+            new GUIFilterPopup(mainFrame);
+        });
     }
 
-    public static void viewProduction(JPanel mainPage, Production production) {
+    public static void viewProduction(GUIMainFrame mainFrame, Production production) {
+        JPanel mainPage = mainFrame.mainPage;
+
         mainPage.removeAll();
         mainPage.setLayout(new BorderLayout());
 
@@ -110,7 +149,7 @@ public class GUIMainFrame extends JFrame {
         // Align the container to the left
         mainPage.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        backButton.addActionListener(e -> viewFrontPage(mainPage));
+        backButton.addActionListener(e -> viewFrontPage(mainFrame));
 
         mainPage.updateUI();
     }

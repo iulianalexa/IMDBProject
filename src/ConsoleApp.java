@@ -1,9 +1,6 @@
 import java.time.LocalDateTime;
 import java.util.*;
 
-// TODO: Warnings
-// TODO: Save on exit
-
 public class ConsoleApp {
     static int showProduction() throws InvalidCommandException {
         ArrayList<Genre> genres = new ArrayList<>();
