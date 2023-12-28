@@ -12,6 +12,7 @@ import java.util.Objects;
 public class IMDB {
     private static final IMDB obj = new IMDB();
     private User<?> currentUser = null;
+    private boolean noGui = false;
 
     private final List<Regular<?>> regulars = new ArrayList<>();
     private final List<Contributor<?>> contributors = new ArrayList<>();
@@ -48,6 +49,10 @@ public class IMDB {
 
     public List<Series> getSeriesList() {
         return new ArrayList<>(seriesList);
+    }
+
+    public void setNoGui(boolean noGui) {
+        this.noGui = noGui;
     }
 
     public List<Production> getProductionList() {
@@ -231,8 +236,6 @@ public class IMDB {
     }
 
     public void run() {
-        boolean noGui = false;
-
         // Load input data
         try {
             this.readActors();

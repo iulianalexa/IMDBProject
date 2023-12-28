@@ -25,7 +25,7 @@ public class GUIMainFrame extends JFrame {
         // Add Main Page
         add(mainPage, BorderLayout.CENTER);
 
-        viewFrontPage(this);
+        viewFrontPage();
         refreshHeader(header);
         setVisible(true);
     }
@@ -33,7 +33,7 @@ public class GUIMainFrame extends JFrame {
     public void updateFilters(List<Genre> filteredGenres, int minimumReviewCount) {
         this.filteredGenres = filteredGenres;
         this.minimumReviewCount = minimumReviewCount;
-        viewFrontPage(this);
+        viewFrontPage();
     }
 
     public static List<Production> getProductionsListFromFilterCriteria(List<Genre> filteredGenres, int minimumReviewCount) {
@@ -48,10 +48,10 @@ public class GUIMainFrame extends JFrame {
         return filteredProductionsList;
     }
 
-    public static void viewFrontPage(GUIMainFrame mainFrame) {
-        JPanel mainPage = mainFrame.mainPage;
-        List<Genre> filteredGenres = mainFrame.filteredGenres;
-        int minimumReviewCount = mainFrame.minimumReviewCount;
+    public void viewFrontPage() {
+        JPanel mainPage = this.mainPage;
+        List<Genre> filteredGenres = this.filteredGenres;
+        int minimumReviewCount = this.minimumReviewCount;
 
         mainPage.removeAll();
         mainPage.setLayout(new BorderLayout());
@@ -86,26 +86,32 @@ public class GUIMainFrame extends JFrame {
                 // Get the selected value
                 Production selectedValue = productionsJList.getSelectedValue();
 
-                viewProduction(mainFrame, selectedValue);
+                this.viewProduction(selectedValue);
             }
         });
 
         // Create button toolbar
         JPanel buttonToolbarPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         JButton filterButton = new JButton("Filter");
+        JButton searchButton = new JButton("Search");
 
         buttonToolbarPanel.add(filterButton);
+        buttonToolbarPanel.add(searchButton);
         mainPage.add(buttonToolbarPanel, BorderLayout.NORTH);
         mainPage.add(scrollPane, BorderLayout.CENTER);
         mainPage.updateUI();
 
         filterButton.addActionListener(e -> {
-            new GUIFilterPopup(mainFrame);
+            new GUIFilterPopup(this);
+        });
+
+        searchButton.addActionListener(e -> {
+            new GUISearchPopup(this);
         });
     }
 
-    public static void viewProduction(GUIMainFrame mainFrame, Production production) {
-        JPanel mainPage = mainFrame.mainPage;
+    public void viewProduction(Production production) {
+        JPanel mainPage = this.mainPage;
 
         mainPage.removeAll();
         mainPage.setLayout(new BorderLayout());
@@ -149,7 +155,53 @@ public class GUIMainFrame extends JFrame {
         // Align the container to the left
         mainPage.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        backButton.addActionListener(e -> viewFrontPage(mainFrame));
+        backButton.addActionListener(e -> viewFrontPage());
+
+        mainPage.updateUI();
+    }
+
+    public void viewActor(Actor actor) {
+        JPanel mainPage = this.mainPage;
+
+        mainPage.removeAll();
+        mainPage.setLayout(new BorderLayout());
+
+        // Row 1: Buttons
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JButton backButton = new JButton("Go back");
+        JButton addToFavoritesButton = new JButton("Add to Favorites");
+
+        buttonPanel.add(backButton);
+        buttonPanel.add(addToFavoritesButton);
+
+        mainPage.add(buttonPanel, BorderLayout.NORTH);
+
+        // Row 2: Name
+        JPanel nameAndInfoPanel = new JPanel(new BorderLayout());
+        JLabel nameLabel = new JLabel(actor.getName());
+        nameLabel.setFont(new Font("Arial", Font.BOLD, 20));
+        nameAndInfoPanel.add(nameLabel, BorderLayout.NORTH);
+
+        // Row 3: Biography
+        JTextArea biographyTextArea = new JTextArea(actor.getBiography());
+        biographyTextArea.setFont(new Font("Arial", Font.PLAIN, 14));
+        biographyTextArea.setLineWrap(true);
+        biographyTextArea.setWrapStyleWord(true);
+        biographyTextArea.setOpaque(false);
+        biographyTextArea.setEditable(false);
+
+        JPanel infoPanel = new JPanel();
+        infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
+        infoPanel.add(biographyTextArea);
+
+        nameAndInfoPanel.add(infoPanel, BorderLayout.CENTER);
+
+        mainPage.add(nameAndInfoPanel, BorderLayout.CENTER);
+
+        // Align the container to the left
+        mainPage.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        backButton.addActionListener(e -> viewFrontPage());
 
         mainPage.updateUI();
     }
@@ -196,5 +248,13 @@ public class GUIMainFrame extends JFrame {
                 user.getAccountType() == AccountType.ADMIN ? "-" : Integer.toString(user.getExperience())
         )));
         header.updateUI();
+    }
+
+    public List<Genre> getFilteredGenres() {
+        return new ArrayList<>(this.filteredGenres);
+    }
+
+    public int getMinimumReviewCount() {
+        return this.minimumReviewCount;
     }
 }

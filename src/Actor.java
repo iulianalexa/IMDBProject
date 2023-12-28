@@ -76,4 +76,8 @@ public class Actor implements Comparable<Object> {
     public void removePerformance(Performance performance) {
         this.performances.remove(performance);
     }
+
+    public String getBiography() {
+        return biography;
+    }
 }

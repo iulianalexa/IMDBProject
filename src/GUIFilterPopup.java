@@ -11,10 +11,12 @@ public class GUIFilterPopup extends JFrame {
     private JTextField a0TextField;
     private JButton addGenreButton;
     private JComboBox<Genre> comboBox1;
-    private final List<Genre> filteredList = new ArrayList<>();
-    private int minimumReviewCount = 0;
+    private List<Genre> filteredList;
+    private int minimumReviewCount;
 
     public GUIFilterPopup(GUIMainFrame mainFrame) {
+        this.filteredList = mainFrame.getFilteredGenres();
+        this.minimumReviewCount = mainFrame.getMinimumReviewCount();
         initializeUI(mainFrame);
     }
 
@@ -109,6 +111,6 @@ public class GUIFilterPopup extends JFrame {
         pack();
         setLocationRelativeTo(null);
         setVisible(true);
-
+        updateListModel(listModel, filteredList);
     }
 }
