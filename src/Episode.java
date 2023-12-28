@@ -18,9 +18,6 @@ public class Episode {
 
     @Override
     public String toString() {
-        return "Episode{" +
-                "episodeName='" + episodeName + '\'' +
-                ", duration='" + duration + '\'' +
-                '}';
+        return episodeName + " (" + duration + ")";
     }
 }

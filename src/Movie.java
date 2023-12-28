@@ -51,4 +51,12 @@ public class Movie extends Production {
     public void setDuration(String duration) {
         this.duration = duration;
     }
+
+    public String getDuration() {
+        return duration;
+    }
+
+    public Integer getReleaseYear() {
+        return releaseYear;
+    }
 }

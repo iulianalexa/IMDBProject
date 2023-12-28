@@ -84,4 +84,8 @@ public class Series extends Production {
         }
         this.episodes = newSeasonMap;
     }
+
+    public Integer getReleaseYear() {
+        return releaseYear;
+    }
 }

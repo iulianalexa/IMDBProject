@@ -1,5 +1,6 @@
 import javax.swing.*;
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.List;
 
 public class GUISearchPopup extends JFrame {
@@ -163,7 +164,7 @@ public class GUISearchPopup extends JFrame {
                 }
                 break;
             case ACTOR:
-                Actor actor = search(query, IMDB.getInstance().getActors(), Actor.class);
+                Actor actor = search(query, new ArrayList<>(IMDB.getInstance().getActors()), Actor.class);
                 if (actor != null) {
                     mainFrame.viewActor(actor);
                     return true;

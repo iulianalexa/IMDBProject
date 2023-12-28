@@ -83,4 +83,8 @@ public class Rating implements Subject, Comparable<Rating> {
 
         return Integer.compare(author.getExperience(), otherAuthor.getExperience());
     }
+
+    public String getComment() {
+        return comment;
+    }
 }

@@ -5,9 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public class IMDB {
     private static final IMDB obj = new IMDB();
@@ -18,7 +16,7 @@ public class IMDB {
     private final List<Contributor<?>> contributors = new ArrayList<>();
     private final List<Admin<?>> admins = new ArrayList<>();
 
-    private List<Actor> actors = new ArrayList<>();
+    private SortedSet<Actor> actors = new TreeSet<>();
     private final List<Request> requestList = new ArrayList<>();
     private final List<Movie> movieList = new ArrayList<>();
     private final List<Series> seriesList = new ArrayList<>();
@@ -62,8 +60,8 @@ public class IMDB {
         return productions;
     }
 
-    public List<Actor> getActors() {
-        return new ArrayList<>(actors);
+    public SortedSet<Actor> getActors() {
+        return new TreeSet<>(actors);
     }
 
     public void addActor(Actor actor) {

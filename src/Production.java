@@ -44,7 +44,10 @@ abstract public class Production implements Comparable<Object> {
     }
 
     public List<Rating> getRatings() {
-        return new ArrayList<>(ratings);
+        List<Rating> newRatings = new ArrayList<>(ratings);
+        newRatings.sort(null);
+
+        return newRatings;
     }
 
     public Double getAverageRating() {
