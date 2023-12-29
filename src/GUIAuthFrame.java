@@ -35,7 +35,7 @@ public class GUIAuthFrame extends JFrame {
             User<?> user = IMDB.getInstance().getUser(username);
             if (user != null && user.checkPassword(password)) {
                 IMDB.getInstance().setCurrentUser(user);
-                setVisible(false);
+                dispose();
                 new GUIMainFrame();
             } else {
                 JOptionPane.showMessageDialog(this, "Login failed. Invalid credentials.");

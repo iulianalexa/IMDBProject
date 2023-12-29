@@ -1,7 +1,5 @@
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
@@ -168,7 +166,9 @@ public class GUIMainFrame extends JFrame {
     private enum MenuItemType {
         VIEW_NOTIFICATIONS,
         VIEW_REQUESTS,
-        VIEW_STAFF_REQUESTS
+        VIEW_STAFF_REQUESTS,
+        LOGOUT,
+        EXIT
     }
 
     private static class MenuItem {
@@ -211,6 +211,12 @@ public class GUIMainFrame extends JFrame {
             listModel.addElement(new MenuItem("View Staff Requests", MenuItemType.VIEW_STAFF_REQUESTS));
         }
 
+        // Logout
+        listModel.addElement(new MenuItem("Log out", MenuItemType.LOGOUT));
+
+        // Exit
+        listModel.addElement(new MenuItem("Exit", MenuItemType.EXIT));
+
         // Create a scroll pane for the JList
         JScrollPane scrollPane = new JScrollPane(jList);
 
@@ -231,6 +237,15 @@ public class GUIMainFrame extends JFrame {
                         break;
                     case VIEW_STAFF_REQUESTS:
                         new GUIAssignedRequestListPopup();
+                        break;
+                    case LOGOUT:
+                        IMDB.getInstance().getCurrentUser().logout();
+                        dispose();
+                        new GUIAuthFrame();
+                        break;
+                    case EXIT:
+                        dispose();
+                        System.exit(0);
                         break;
                 }
 
