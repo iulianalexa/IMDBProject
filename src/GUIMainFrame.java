@@ -1,5 +1,9 @@
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -303,6 +307,53 @@ public class GUIMainFrame extends JFrame {
         return addButton;
     }
 
+    private class CustomRateWindowAdapter extends WindowAdapter {
+        Production production;
+        public CustomRateWindowAdapter(Production production) {
+            super();
+            this.production = production;
+        }
+
+        @Override
+        public void windowClosed(WindowEvent e) {
+            viewProduction(production);
+        }
+    }
+
+    private JButton getRateButton(Production production) {
+        JButton addRatingButton = new JButton("Add review");
+        JButton seeRatingButton = new JButton("See review");
+
+        if (IMDB.getInstance().getCurrentUser().getAccountType() != AccountType.REGULAR) {
+            addRatingButton.setEnabled(false);
+        }
+
+        addRatingButton.addActionListener(e -> {
+            JFrame popup = new GUIRatingPopup(production, null);
+            popup.addWindowListener(new CustomRateWindowAdapter(production));
+        });
+
+        Rating userRating = null;
+        for (Rating rating : production.getRatings()) {
+            if (rating.getUsername().equals(IMDB.getInstance().getCurrentUser().getUsername())) {
+                userRating = rating;
+                break;
+            }
+        }
+
+        if (userRating != null) {
+            Rating finalUserRating = userRating;
+            seeRatingButton.addActionListener(e -> {
+                JFrame popup = new GUIRatingPopup(production, finalUserRating);
+                popup.addWindowListener(new CustomRateWindowAdapter(production));
+            });
+
+            return seeRatingButton;
+        }
+
+        return addRatingButton;
+    }
+
     public void viewProduction(Production production) {
         int releaseYear = getReleaseYear(production);
         JPanel mainPage = this.mainPage;
@@ -317,7 +368,7 @@ public class GUIMainFrame extends JFrame {
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         JButton backButton = new JButton("Go back");
         JButton favoritesButton = getFavoritesButton(production, Production.class);
-        JButton addReviewButton = new JButton("Add review");
+        JButton addReviewButton = getRateButton(production);
 
         buttonPanel.add(backButton);
         buttonPanel.add(favoritesButton);
@@ -338,7 +389,7 @@ public class GUIMainFrame extends JFrame {
             currentPanel = addToNorth(currentPanel, durationLabel);
         }
 
-        currentPanel = addToNorth(currentPanel, GUIRating.getWrapped(production.getRatings(), production.getAverageRating()));
+        currentPanel = addToNorth(currentPanel, GUIRatingDisplay.getWrapped(production.getRatings(), production.getAverageRating()));
         currentPanel = addToNorth(currentPanel, getDirectorsPanel(production));
         currentPanel = addToNorth(currentPanel, getGenresPanel(production));
         currentPanel = addToNorth(currentPanel, getActorsPanel(production, this));

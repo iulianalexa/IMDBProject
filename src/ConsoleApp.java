@@ -1192,7 +1192,7 @@ public class ConsoleApp {
         }
 
         if (willRate) {
-            System.out.print("Score: ");
+            System.out.print("Score (1-10): ");
             int score;
             try {
                 score = Integer.parseInt(scanner.nextLine());
@@ -1200,7 +1200,7 @@ public class ConsoleApp {
                 throw new InvalidCommandException("Not a number.");
             }
 
-            if (score < 0 || score > 10) {
+            if (score < 1 || score > 10) {
                 throw new InvalidCommandException("Invalid choice. Please retry.");
             }
 

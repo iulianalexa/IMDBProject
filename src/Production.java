@@ -137,6 +137,7 @@ abstract public class Production implements Comparable<Object> {
 
     public void removeRating(Rating rating) {
         this.ratings.remove(rating);
+        this.updateScore();
     }
 
     public List<User<?>> getAwardedUsers() {

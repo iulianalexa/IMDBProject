@@ -2,7 +2,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.List;
 
-public class GUIRating {
+public class GUIRatingDisplay {
     private static JPanel get(Rating rating) {
         BorderLayout borderLayout = new BorderLayout();
         borderLayout.setVgap(2);
