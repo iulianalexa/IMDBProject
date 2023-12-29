@@ -162,7 +162,8 @@ public class GUIMainFrame extends JFrame {
     }
 
     private enum MenuItemType {
-        VIEW_NOTIFICATIONS
+        VIEW_NOTIFICATIONS,
+        VIEW_REQUESTS
     }
 
     private static class MenuItem {
@@ -184,6 +185,7 @@ public class GUIMainFrame extends JFrame {
         JPanel mainPage = this.mainPage;
         List<Genre> filteredGenres = this.filteredGenres;
         int minimumReviewCount = this.minimumReviewCount;
+        User<?> user = IMDB.getInstance().getCurrentUser();
 
         mainPage.removeAll();
         mainPage.setLayout(new BorderLayout());
@@ -194,6 +196,11 @@ public class GUIMainFrame extends JFrame {
         // View Notifications
         listModel.addElement(new MenuItem("View Notifications", MenuItemType.VIEW_NOTIFICATIONS));
 
+        // View Requests
+        if (user.getAccountType() == AccountType.REGULAR || user.getAccountType() == AccountType.CONTRIBUTOR) {
+            listModel.addElement(new MenuItem("View Requests", MenuItemType.VIEW_REQUESTS));
+        }
+
         // Create a scroll pane for the JList
         JScrollPane scrollPane = new JScrollPane(jList);
 
@@ -202,15 +209,20 @@ public class GUIMainFrame extends JFrame {
 
         // Add a list selection listener to respond to item clicks
         jList.addListSelectionListener(e -> {
-            if (!e.getValueIsAdjusting()) {
+            if (!jList.isSelectionEmpty() && !e.getValueIsAdjusting()) {
                 // Get the selected value
                 MenuItem selectedValue = jList.getSelectedValue();
-
                 switch (selectedValue.type) {
                     case VIEW_NOTIFICATIONS:
                         new GUINotificationListPopup();
                         break;
+                    case VIEW_REQUESTS:
+                        new GUIRequestListPopup();
+                        break;
                 }
+
+                // Deselect
+                jList.clearSelection();
             }
         });
 

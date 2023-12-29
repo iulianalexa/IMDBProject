@@ -27,7 +27,7 @@ public class Request implements Subject {
     @JsonProperty("to")
     private String assignedUsername;
 
-    private String targetName;
+    private String targetName = null;
     private boolean hasAssigned = false;
 
     @JsonCreator
@@ -60,6 +60,10 @@ public class Request implements Subject {
 
     public RequestType getType() {
         return type;
+    }
+
+    public String getTargetName() {
+        return targetName;
     }
 
     @Override
