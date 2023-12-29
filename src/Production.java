@@ -11,14 +11,14 @@ import java.util.List;
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 abstract public class Production implements Comparable<Object> {
     private String title, plot;
-    private final List<String> directors = new ArrayList<>();
+    private List<String> directors = new ArrayList<>();
 
     // Users that have rated this production at some point
     private final List<User<?>> awardedUsers = new ArrayList<>();
 
     @JsonDeserialize(using = CustomProductionDeserializer.class)
     private List<Actor> actors = new ArrayList<>();
-    private final List<Genre> genres = new ArrayList<>();
+    private List<Genre> genres = new ArrayList<>();
     private final List<Rating> ratings = new ArrayList<>();
     private Double averageRating = 0.0;
     private ProductionType type;
@@ -101,6 +101,18 @@ abstract public class Production implements Comparable<Object> {
     public void addRating(Rating rating) {
         this.ratings.add(rating);
         this.updateScore();
+    }
+
+    public void setDirectors(List<String> directors) {
+        this.directors = directors;
+    }
+
+    public void setActors(List<Actor> actors) {
+        this.actors = actors;
+    }
+
+    public void setGenres(List<Genre> genres) {
+        this.genres = genres;
     }
 
     public void setTitle(String title) {

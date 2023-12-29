@@ -167,6 +167,7 @@ public class GUIMainFrame extends JFrame {
         VIEW_NOTIFICATIONS,
         VIEW_REQUESTS,
         VIEW_STAFF_REQUESTS,
+        ADD_PRODUCTION,
         LOGOUT,
         EXIT
     }
@@ -211,6 +212,10 @@ public class GUIMainFrame extends JFrame {
             listModel.addElement(new MenuItem("View Staff Requests", MenuItemType.VIEW_STAFF_REQUESTS));
         }
 
+        if (user.getAccountType() == AccountType.CONTRIBUTOR || user.getAccountType() == AccountType.ADMIN) {
+            listModel.addElement(new MenuItem("Add Production", MenuItemType.ADD_PRODUCTION));
+        }
+
         // Logout
         listModel.addElement(new MenuItem("Log out", MenuItemType.LOGOUT));
 
@@ -238,7 +243,16 @@ public class GUIMainFrame extends JFrame {
                     case VIEW_STAFF_REQUESTS:
                         new GUIAssignedRequestListPopup();
                         break;
+                    case ADD_PRODUCTION:
+                        new GUIProductionPopup(null);
+                        break;
                     case LOGOUT:
+                        for (Window window : getWindows()) {
+                            if (window instanceof JFrame) {
+                                window.dispose();
+                            }
+                        }
+
                         IMDB.getInstance().getCurrentUser().logout();
                         dispose();
                         new GUIAuthFrame();
@@ -568,14 +582,3 @@ public class GUIMainFrame extends JFrame {
     }
 }
 
-class ActorListCellRenderer extends DefaultListCellRenderer {
-    @Override
-    public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-        JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-        if (value instanceof Actor actor) {
-            label.setText(actor.getName());
-        }
-
-        return label;
-    }
-}

@@ -9,7 +9,7 @@ public class Movie extends Production {
     private String duration;
 
     @JsonCreator
-    Movie() {
+    private Movie() {
         this("", "", "", 0);
     }
 

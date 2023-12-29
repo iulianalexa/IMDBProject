@@ -41,6 +41,11 @@ abstract public class Staff<T extends Comparable<Object>> extends User<T> implem
         @SuppressWarnings("unchecked")
         SortedSet<Production> productionSortedSet = (SortedSet<Production>) contributions;
         productionSortedSet.add(p);
+
+        for (Actor actor : p.getActors()) {
+            actor.addPerformance(p.getTitle(), p.getType());
+        }
+
         this.awardExperience(new NewContributionExperienceStrategy());
     }
 
@@ -65,6 +70,14 @@ abstract public class Staff<T extends Comparable<Object>> extends User<T> implem
             IMDB.getInstance().removeMovie(movie);
         } else if (production instanceof Series series) {
             IMDB.getInstance().removeSeries(series);
+        }
+
+        for (Actor actor : production.getActors()) {
+            for (Performance performance : actor.getPerformances()) {
+                if (performance.getTitle().equals(production.getTitle())) {
+                    actor.removePerformance(performance);
+                }
+            }
         }
 
         @SuppressWarnings("unchecked")

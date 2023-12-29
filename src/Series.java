@@ -15,7 +15,7 @@ public class Series extends Production {
     private Map<String, List<Episode>> episodes = new HashMap<>();
 
     @JsonCreator
-    Series() {
+    private Series() {
         this("", "", 0, 0);
     }
 
