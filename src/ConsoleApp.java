@@ -350,8 +350,7 @@ public class ConsoleApp {
                                 LocalDateTime.now(),
                                 description,
                                 user.getUsername(),
-                                "ADMIN",
-                                false
+                                "ADMIN"
                         );
 
                         requestsManager.createRequest(request);
@@ -374,8 +373,7 @@ public class ConsoleApp {
                                 LocalDateTime.now(),
                                 description,
                                 user.getUsername(),
-                                adder == null ? "ADMIN" : adder.getUsername(),
-                                adder != null
+                                adder == null ? "ADMIN" : adder.getUsername()
                         );
                         request.setTargetName(actor.getName());
                         requestsManager.createRequest(request);
@@ -399,8 +397,7 @@ public class ConsoleApp {
                                 LocalDateTime.now(),
                                 description,
                                 user.getUsername(),
-                                adder == null ? "ADMIN" : adder.getUsername(),
-                                adder != null
+                                adder == null ? "ADMIN" : adder.getUsername()
                         );
                         request.setTargetName(production.getTitle());
                         requestsManager.createRequest(request);
@@ -412,8 +409,7 @@ public class ConsoleApp {
                                 LocalDateTime.now(),
                                 description,
                                 user.getUsername(),
-                                "ADMIN",
-                                false
+                                "ADMIN"
                         );
 
                         requestsManager.createRequest(request);

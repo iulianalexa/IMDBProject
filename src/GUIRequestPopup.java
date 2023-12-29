@@ -105,8 +105,7 @@ public class GUIRequestPopup extends JFrame {
                             LocalDateTime.now(),
                             commentTextArea.getText(),
                             IMDB.getInstance().getCurrentUser().getUsername(),
-                            "ADMIN",
-                            false
+                            "ADMIN"
                     );
                     break;
                 case ACTOR_ISSUE:
@@ -134,8 +133,7 @@ public class GUIRequestPopup extends JFrame {
                             LocalDateTime.now(),
                             commentTextArea.getText(),
                             user.getUsername(),
-                            actorAdder == null ? "ADMIN" : actorAdder.getUsername(),
-                            actorAdder != null
+                            actorAdder == null ? "ADMIN" : actorAdder.getUsername()
                     );
                     break;
                 case MOVIE_ISSUE:
@@ -154,8 +152,7 @@ public class GUIRequestPopup extends JFrame {
                             LocalDateTime.now(),
                             commentTextArea.getText(),
                             IMDB.getInstance().getCurrentUser().getUsername(),
-                            productionAdder == null ? "ADMIN" : productionAdder.getUsername(),
-                            productionAdder != null
+                            productionAdder == null ? "ADMIN" : productionAdder.getUsername()
                     );
                     break;
             }

@@ -28,18 +28,16 @@ public class Request implements Subject {
     private String assignedUsername;
 
     private String targetName = null;
-    private boolean hasAssigned = false;
 
     @JsonCreator
     private Request() {}
 
-    public Request(RequestType type, LocalDateTime createdDate, String description, String authorUsername, String assignedUsername, boolean hasAssigned) {
+    public Request(RequestType type, LocalDateTime createdDate, String description, String authorUsername, String assignedUsername) {
         this.type = type;
         this.createdDate = createdDate;
         this.description = description;
         this.authorUsername = authorUsername;
         this.assignedUsername = assignedUsername;
-        this.hasAssigned = hasAssigned;
     }
 
     public String getAuthorUsername() {
@@ -52,10 +50,6 @@ public class Request implements Subject {
 
     public String getDescription() {
         return description;
-    }
-
-    public boolean getHasAssigned() {
-        return this.hasAssigned;
     }
 
     public RequestType getType() {

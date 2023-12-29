@@ -10,12 +10,8 @@ public class Regular<T extends Comparable<Object>> extends User<T> implements Re
     public void createRequest(Request r) {
         IMDB.getInstance().addRequest(r);
         r.subscribe("author", this);
-        if (r.getHasAssigned()) {
-            User<?> assignedUser = IMDB.getInstance().getUser(r.getAssignedUsername());
-            if (!(assignedUser instanceof Staff<?> assignedStaff)) {
-                return;
-            }
-
+        User<?> assignedUser = IMDB.getInstance().getUser(r.getAssignedUsername());
+        if ((r.getType() == RequestType.MOVIE_ISSUE || r.getType() == RequestType.ACTOR_ISSUE) && assignedUser instanceof Staff<?> assignedStaff) {
             r.subscribe("assigned", assignedUser);
             r.sendNotification("assigned", String.format(
                     "You received a new request by %s!", this.getUsername()
@@ -29,12 +25,8 @@ public class Regular<T extends Comparable<Object>> extends User<T> implements Re
     @Override
     public void removeRequest(Request r) {
         IMDB.getInstance().removeRequest(r);
-        if (r.getHasAssigned()) {
-            User<?> assignedUser = IMDB.getInstance().getUser(r.getAssignedUsername());
-            if (!(assignedUser instanceof Staff<?> assignedStaff)) {
-                return;
-            }
-
+        User<?> assignedUser = IMDB.getInstance().getUser(r.getAssignedUsername());
+        if (assignedUser instanceof Staff<?> assignedStaff) {
             assignedStaff.removeRequest(r);
         } else {
             RequestsHolder.removeAdminRequest(r);
