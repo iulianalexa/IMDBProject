@@ -163,7 +163,8 @@ public class GUIMainFrame extends JFrame {
 
     private enum MenuItemType {
         VIEW_NOTIFICATIONS,
-        VIEW_REQUESTS
+        VIEW_REQUESTS,
+        VIEW_STAFF_REQUESTS
     }
 
     private static class MenuItem {
@@ -201,6 +202,11 @@ public class GUIMainFrame extends JFrame {
             listModel.addElement(new MenuItem("View Requests", MenuItemType.VIEW_REQUESTS));
         }
 
+        // View Staff Requests
+        if (user.getAccountType() == AccountType.CONTRIBUTOR || user.getAccountType() == AccountType.ADMIN) {
+            listModel.addElement(new MenuItem("View Staff Requests", MenuItemType.VIEW_STAFF_REQUESTS));
+        }
+
         // Create a scroll pane for the JList
         JScrollPane scrollPane = new JScrollPane(jList);
 
@@ -217,7 +223,10 @@ public class GUIMainFrame extends JFrame {
                         new GUINotificationListPopup();
                         break;
                     case VIEW_REQUESTS:
-                        new GUIRequestListPopup();
+                        new GUIAuthorRequestListPopup();
+                        break;
+                    case VIEW_STAFF_REQUESTS:
+                        new GUIAssignedRequestListPopup();
                         break;
                 }
 

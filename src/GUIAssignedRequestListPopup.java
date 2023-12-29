@@ -2,10 +2,11 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.ArrayList;
 import java.util.List;
 
-public class GUIRequestListPopup extends JFrame {
-    RequestsManager requestsManager;
+public class GUIAssignedRequestListPopup extends JFrame {
+    Staff<?> staff;
     JPanel panel = new JPanel(new BorderLayout());
 
     class CustomWindowAdapter extends WindowAdapter {
@@ -15,9 +16,9 @@ public class GUIRequestListPopup extends JFrame {
         }
     }
 
-    public GUIRequestListPopup() {
-        if (IMDB.getInstance().getCurrentUser() instanceof RequestsManager rm) {
-            this.requestsManager = rm;
+    public GUIAssignedRequestListPopup() {
+        if (IMDB.getInstance().getCurrentUser() instanceof Staff<?> staff1) {
+            this.staff = staff1;
         } else {
             return;
         }
@@ -39,7 +40,11 @@ public class GUIRequestListPopup extends JFrame {
     private void remakeUI(JPanel panel) {
         panel.removeAll();
 
-        List<Request> requests = this.requestsManager.getRequests();
+        List<Request> requests = new ArrayList<>(staff.getRequestList());
+        if (staff.getAccountType() == AccountType.ADMIN) {
+            requests.addAll(RequestsHolder.getRequests());
+        }
+
         Request[] requestsArr = new Request[requests.size()];
         requests.toArray(requestsArr);
         JList<Request> requestJList = new JList<>(requestsArr);
@@ -58,23 +63,16 @@ public class GUIRequestListPopup extends JFrame {
 
         JScrollPane scrollPane = new JScrollPane(requestJList);
 
-        JButton newRequestButton = new JButton("New Request");
 
         panel.add(scrollPane, BorderLayout.CENTER);
-        panel.add(newRequestButton, BorderLayout.SOUTH);
 
         requestJList.addListSelectionListener(e -> {
             if (!requestJList.isSelectionEmpty() && !e.getValueIsAdjusting()) {
                 Request request = requestJList.getSelectedValue();
-                JFrame popup = new GUIRequestPopup(request, GUIRequestViewer.AUTHOR);
+                JFrame popup = new GUIRequestPopup(request, GUIRequestViewer.ASSIGNED);
                 popup.addWindowListener(new CustomWindowAdapter());
                 requestJList.clearSelection();
             }
-        });
-
-        newRequestButton.addActionListener(e -> {
-            JFrame popup = new GUIRequestPopup(null, GUIRequestViewer.AUTHOR);
-            popup.addWindowListener(new CustomWindowAdapter());
         });
 
         pack();

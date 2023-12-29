@@ -25,6 +25,24 @@ public class GUIRequestPopup extends JFrame {
                     dispose();
                 }
             });
+        } else if (request != null && requestViewer == GUIRequestViewer.ASSIGNED) {
+            JButton acceptButton = new JButton("Accept Request");
+            JButton closeButton = new JButton("Close Request");
+            buttonsToolbar.add(acceptButton);
+            buttonsToolbar.add(closeButton);
+            acceptButton.addActionListener(e -> {
+                if (IMDB.getInstance().getCurrentUser() instanceof Staff<?> staff) {
+                    staff.solveRequest(request);
+                    dispose();
+                }
+            });
+
+            closeButton.addActionListener(e -> {
+                if (IMDB.getInstance().getCurrentUser() instanceof Staff<?> staff) {
+                    staff.closeRequest(request, false);
+                    dispose();
+                }
+            });
         }
 
         setLocationRelativeTo(null);
@@ -96,17 +114,26 @@ public class GUIRequestPopup extends JFrame {
                         showErrorDialog("You need to specify the actor name.");
                         return;
                     }
+
                     Actor actor = IMDB.getInstance().searchForActor(textField.getText());
                     if (actor == null) {
                         showErrorDialog("Could not find actor.");
                         return;
                     }
+
                     User<?> actorAdder = IMDB.getInstance().getAdder(actor);
+                    User<?> user = IMDB.getInstance().getCurrentUser();
+
+                    if (actorAdder != null && actorAdder.getUsername().equals(user.getUsername()) && user.getAccountType() == AccountType.CONTRIBUTOR) {
+                        showErrorDialog("You cannot open a request on your own contribution!");
+                        return;
+                    }
+
                     newRequest = new Request(
                             RequestType.ACTOR_ISSUE,
                             LocalDateTime.now(),
                             commentTextArea.getText(),
-                            IMDB.getInstance().getCurrentUser().getUsername(),
+                            user.getUsername(),
                             actorAdder == null ? "ADMIN" : actorAdder.getUsername(),
                             actorAdder != null
                     );
