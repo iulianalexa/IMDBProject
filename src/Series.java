@@ -73,6 +73,10 @@ public class Series extends Production {
         return new HashMap<>(this.episodes);
     }
 
+    public void setEpisodes(Map<String, List<Episode>> episodes) {
+        this.episodes = episodes;
+    }
+
     public void changeSeasonName(String currentName, String newName) {
         Map<String, List<Episode>> newSeasonMap = new HashMap<>();
         for (String key : this.episodes.keySet()) {

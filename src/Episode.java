@@ -16,6 +16,10 @@ public class Episode {
         this.duration = duration;
     }
 
+    public String getDuration() {
+        return duration;
+    }
+
     @Override
     public String toString() {
         return episodeName + " (" + duration + ")";

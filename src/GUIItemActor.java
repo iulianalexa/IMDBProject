@@ -2,8 +2,8 @@ import javax.swing.*;
 import java.awt.*;
 
 public class GUIItemActor extends GUIItemGeneric<Actor> {
-    public GUIItemActor() {
-        super();
+    public GUIItemActor(Actor actor) {
+        super(actor);
         initializeUI();
     }
 
@@ -13,6 +13,11 @@ public class GUIItemActor extends GUIItemGeneric<Actor> {
         JPanel infoPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         JLabel nameLabel = new JLabel("Actor name:");
         JTextField nameField = new JTextField(25);
+
+        if (getItem() != null) {
+            nameField.setText(getItem().getName());
+        }
+
         infoPanel.add(nameLabel);
         infoPanel.add(nameField);
 

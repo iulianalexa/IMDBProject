@@ -5,11 +5,15 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class GUIProductionPopup extends JFrame {
     JTextField releaseYearField = new JTextField(25);
     JTextField durationField;
+    JButton seasonsButton = new JButton("Seasons...");
+
     Staff<?> staff;
 
     public GUIProductionPopup(Production production) {
@@ -53,6 +57,7 @@ public class GUIProductionPopup extends JFrame {
         final List<String> directors = new ArrayList<>();
         final List<Actor> actors = new ArrayList<>();
         final List<Genre> genres = new ArrayList<>();
+        final List<Season> seasons = new ArrayList<>();
 
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
@@ -145,6 +150,15 @@ public class GUIProductionPopup extends JFrame {
 
                     } else if (productionType == ProductionType.SERIES) {
                         newProduction = new Series(title, description, releaseYear, 0);
+
+                        // Create episodes map
+                        Map<String, List<Episode>> episodes = new HashMap<>();
+                        for (Season season : seasons) {
+                            episodes.put(season.getName(), season.getEpisodes());
+                        }
+
+                        ((Series) newProduction).setNumSeasons(seasons.size());
+                        ((Series) newProduction).setEpisodes(episodes);
                     } else {
                         // Impossible case
                         return;
@@ -157,6 +171,7 @@ public class GUIProductionPopup extends JFrame {
                 newProduction.setDirectors(directors);
                 newProduction.setActors(actors);
                 newProduction.setGenres(genres);
+
                 staff.addProductionSystem(newProduction);
                 dispose();
             }
@@ -164,6 +179,7 @@ public class GUIProductionPopup extends JFrame {
 
         directorListButton.addActionListener(e -> {
             new GUIGenericList<>(
+                    String.class,
                     directors,
                     new DefaultListCellRenderer(),
                     GUIItemDirector.class
@@ -172,6 +188,7 @@ public class GUIProductionPopup extends JFrame {
 
         actorListButton.addActionListener(e -> {
             new GUIGenericList<>(
+                    Actor.class,
                     actors,
                     new ActorListCellRenderer(),
                     GUIItemActor.class
@@ -180,9 +197,19 @@ public class GUIProductionPopup extends JFrame {
 
         genreListButton.addActionListener(e -> {
             new GUIGenericList<>(
+                    Genre.class,
                     genres,
                     new DefaultListCellRenderer(),
                     GUIItemGenre.class
+            );
+        });
+
+        seasonsButton.addActionListener(e -> {
+            new GUIGenericList<>(
+                    Season.class,
+                    seasons,
+                    new DefaultListCellRenderer(),
+                    GUIItemSeason.class
             );
         });
 
@@ -213,7 +240,6 @@ public class GUIProductionPopup extends JFrame {
         releaseYearPanel.add(releaseYearField);
 
         JPanel buttonPanel = new JPanel(new BorderLayout());
-        JButton seasonsButton = new JButton("Seasons...");
         buttonPanel.add(seasonsButton, BorderLayout.CENTER);
 
         panel.add(releaseYearPanel);

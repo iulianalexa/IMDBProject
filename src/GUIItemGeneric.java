@@ -1,15 +1,17 @@
 import javax.swing.*;
 
 abstract public class GUIItemGeneric<T> extends JFrame {
-    private T item = null;
+    private T item;
 
-    public GUIItemGeneric() {}
-
-    public T getItem() {
-        return item;
+    public GUIItemGeneric(T item) {
+        this.item = item;
     }
 
-    public void setItem(T item) {
+    void setItem(T item) {
         this.item = item;
+    }
+
+    T getItem() {
+        return this.item;
     }
 }

@@ -1,9 +1,14 @@
 import javax.swing.*;
 import java.awt.*;
+import java.util.ArrayList;
 
-public class GUIItemDirector extends GUIItemGeneric<String> {
-    public GUIItemDirector(String name) {
-        super(name);
+public class GUIItemSeason extends GUIItemGeneric<Season> {
+    public GUIItemSeason(Season season) {
+        super(season);
+        if (season == null) {
+            setItem(new Season("", new ArrayList<>()));
+        }
+
         initializeUI();
     }
 
@@ -11,35 +16,49 @@ public class GUIItemDirector extends GUIItemGeneric<String> {
         setLayout(new BorderLayout());
 
         JPanel infoPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        JLabel nameLabel = new JLabel("Director name:");
+        JLabel nameLabel = new JLabel("Season name:");
         JTextField nameField = new JTextField(25);
 
         if (getItem() != null) {
-            nameField.setText(getItem());
+            nameField.setText(getItem().getName());
         }
 
         infoPanel.add(nameLabel);
         infoPanel.add(nameField);
 
+        JPanel episodeListPanel = new JPanel(new BorderLayout());
+        JButton episodeListButton = new JButton("Episodes...");
+        episodeListPanel.add(episodeListButton);
+
         JPanel buttonPanel = new JPanel(new BorderLayout());
         JButton submitButton = new JButton("Submit");
         buttonPanel.add(submitButton, BorderLayout.CENTER);
 
-        add(infoPanel, BorderLayout.CENTER);
+        add(infoPanel, BorderLayout.NORTH);
+        add(episodeListPanel, BorderLayout.CENTER);
         add(buttonPanel, BorderLayout.SOUTH);
 
         setLocationRelativeTo(null);
         pack();
         setVisible(true);
 
+        episodeListButton.addActionListener(e -> {
+            new GUIGenericList<>(
+                    Episode.class,
+                    getItem().getEpisodes(),
+                    new DefaultListCellRenderer(),
+                    GUIItemEpisode.class
+            );
+        });
+
         submitButton.addActionListener(e -> {
             String name = nameField.getText();
             if (name.isEmpty()) {
-                showErrorDialog("Director name cannot be empty!");
+                showErrorDialog("Season name cannot be empty!");
                 return;
             }
 
-            super.setItem(name);
+            getItem().setName(name);
             dispose();
         });
     }

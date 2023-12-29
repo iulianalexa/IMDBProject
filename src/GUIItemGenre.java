@@ -2,8 +2,8 @@ import javax.swing.*;
 import java.awt.*;
 
 public class GUIItemGenre extends GUIItemGeneric<Genre> {
-    public GUIItemGenre() {
-        super();
+    public GUIItemGenre(Genre genre) {
+        super(genre);
         initializeUI();
     }
 
@@ -13,6 +13,11 @@ public class GUIItemGenre extends GUIItemGeneric<Genre> {
         JPanel infoPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         JLabel nameLabel = new JLabel("Genre:");
         JComboBox<Genre> genreJComboBox = new JComboBox<>(Genre.values());
+
+        if (getItem() != null) {
+            genreJComboBox.setSelectedItem(getItem());
+        }
+
         infoPanel.add(nameLabel);
         infoPanel.add(genreJComboBox);
 
