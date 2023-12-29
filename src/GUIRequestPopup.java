@@ -135,6 +135,8 @@ public class GUIRequestPopup extends JFrame {
                             user.getUsername(),
                             actorAdder == null ? "ADMIN" : actorAdder.getUsername()
                     );
+
+                    newRequest.setTargetName(actor.getName());
                     break;
                 case MOVIE_ISSUE:
                     if (textField.getText().isEmpty()) {
@@ -154,6 +156,8 @@ public class GUIRequestPopup extends JFrame {
                             IMDB.getInstance().getCurrentUser().getUsername(),
                             productionAdder == null ? "ADMIN" : productionAdder.getUsername()
                     );
+
+                    newRequest.setTargetName(production.getTitle());
                     break;
             }
 
