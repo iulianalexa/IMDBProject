@@ -137,44 +137,48 @@ public class GUIProductionPopup extends JFrame {
                 return;
             }
 
-            if (production == null) {
-                Production newProduction;
+            Production newProduction;
 
-                if (typeComboBox.getSelectedItem() instanceof ProductionType productionType) {
-                    if (productionType == ProductionType.MOVIE) {
-                        String duration = durationField.getText();
-                        if (duration.isEmpty()) {
-                            duration = null;
-                        }
-                        newProduction = new Movie(title, description, duration, releaseYear);
-
-                    } else if (productionType == ProductionType.SERIES) {
-                        newProduction = new Series(title, description, releaseYear, 0);
-
-                        // Create episodes map
-                        Map<String, List<Episode>> episodes = new HashMap<>();
-                        for (Season season : seasons) {
-                            episodes.put(season.getName(), season.getEpisodes());
-                        }
-
-                        ((Series) newProduction).setNumSeasons(seasons.size());
-                        ((Series) newProduction).setEpisodes(episodes);
-                    } else {
-                        // Impossible case
-                        return;
+            if (typeComboBox.getSelectedItem() instanceof ProductionType productionType) {
+                if (productionType == ProductionType.MOVIE) {
+                    String duration = durationField.getText();
+                    if (duration.isEmpty()) {
+                        duration = null;
                     }
+                    newProduction = new Movie(title, description, duration, releaseYear);
+
+                } else if (productionType == ProductionType.SERIES) {
+                    newProduction = new Series(title, description, releaseYear, 0);
+
+                    // Create episodes map
+                    Map<String, List<Episode>> episodes = new HashMap<>();
+                    for (Season season : seasons) {
+                        episodes.put(season.getName(), season.getEpisodes());
+                    }
+
+                    ((Series) newProduction).setNumSeasons(seasons.size());
+                    ((Series) newProduction).setEpisodes(episodes);
                 } else {
                     // Impossible case
                     return;
                 }
-
-                newProduction.setDirectors(directors);
-                newProduction.setActors(actors);
-                newProduction.setGenres(genres);
-
-                staff.addProductionSystem(newProduction);
-                dispose();
+            } else {
+                // Impossible case
+                return;
             }
+
+            newProduction.setDirectors(directors);
+            newProduction.setActors(actors);
+            newProduction.setGenres(genres);
+
+            if (production == null) {
+                staff.addProductionSystem(newProduction);
+            } else {
+                production.copyNonUpdatableInformationOver(newProduction);
+                staff.removeProductionSystem(production);
+                staff.addProductionSystem(newProduction);
+            }
+            dispose();
         });
 
         directorListButton.addActionListener(e -> {
@@ -212,6 +216,28 @@ public class GUIProductionPopup extends JFrame {
                     GUIItemSeason.class
             );
         });
+
+        if (production != null) {
+            // Set appropriate fields
+            titleField.setText(production.getTitle());
+            descriptionTextArea.setText(production.getPlot());
+            directors.addAll(production.getDirectors());
+            genres.addAll(production.getGenres());
+            actors.addAll(production.getActors());
+            if (production instanceof Movie movie) {
+                typeComboBox.setSelectedItem(ProductionType.MOVIE);
+                releaseYearField.setText(Integer.toString(movie.getReleaseYear()));
+                durationField.setText(movie.getDuration());
+            } else if (production instanceof Series series) {
+                typeComboBox.setSelectedItem(ProductionType.SERIES);
+                releaseYearField.setText(Integer.toString(series.getReleaseYear()));
+                Map<String, List<Episode>> episodeMap = series.getSeasons();
+                for (String key : episodeMap.keySet()) {
+                    List<Episode> episodeList = episodeMap.get(key);
+                    seasons.add(new Season(key, episodeList));
+                }
+            }
+        }
 
         return panel;
     }

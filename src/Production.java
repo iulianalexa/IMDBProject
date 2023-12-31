@@ -14,12 +14,12 @@ abstract public class Production implements Comparable<Object> {
     private List<String> directors = new ArrayList<>();
 
     // Users that have rated this production at some point
-    private final List<User<?>> awardedUsers = new ArrayList<>();
+    private List<User<?>> awardedUsers = new ArrayList<>();
 
     @JsonDeserialize(using = CustomProductionDeserializer.class)
     private List<Actor> actors = new ArrayList<>();
     private List<Genre> genres = new ArrayList<>();
-    private final List<Rating> ratings = new ArrayList<>();
+    private List<Rating> ratings = new ArrayList<>();
     private Double averageRating = 0.0;
     private ProductionType type;
 
@@ -158,6 +158,12 @@ abstract public class Production implements Comparable<Object> {
 
     public void addAwardedUser(User<?> user) {
         awardedUsers.add(user);
+    }
+
+    public void copyNonUpdatableInformationOver(Production production) {
+        production.averageRating = this.averageRating;
+        production.ratings = this.ratings;
+        production.awardedUsers = this.awardedUsers;
     }
 }
 

@@ -95,12 +95,9 @@ abstract public class Staff<T extends Comparable<Object>> extends User<T> implem
             return;
         }
 
-        if (p instanceof Movie m && currentProd instanceof Movie currentMovie) {
-            IMDB.getInstance().removeMovie(currentMovie);
-            IMDB.getInstance().addMovie(m);
-        } else if (p instanceof Series s && currentProd instanceof Series currentSeries) {
-            IMDB.getInstance().removeSeries(currentSeries);
-            IMDB.getInstance().addSeries(s);
+        if (p.getType() == currentProd.getType()) {
+            this.removeProductionSystem(currentProd);
+            this.addProductionSystem(p);
         }
     }
 
@@ -111,8 +108,8 @@ abstract public class Staff<T extends Comparable<Object>> extends User<T> implem
             return;
         }
 
-        IMDB.getInstance().removeActor(currentActor);
-        IMDB.getInstance().addActor(a);
+        this.removeActorSystem(currentActor);
+        this.addActorSystem(a);
     }
 
     @Override

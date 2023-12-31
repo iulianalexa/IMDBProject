@@ -159,6 +159,7 @@ public class GUIMainFrame extends JFrame {
         VIEW_STAFF_REQUESTS,
         ADD_PRODUCTION,
         REMOVE_PRODUCTION,
+        UPDATE_PRODUCTION,
         LOGOUT,
         EXIT
     }
@@ -211,6 +212,10 @@ public class GUIMainFrame extends JFrame {
             listModel.addElement(new MenuItem("Remove Production", MenuItemType.REMOVE_PRODUCTION));
         }
 
+        if (user.getAccountType() == AccountType.CONTRIBUTOR || user.getAccountType() == AccountType.ADMIN) {
+            listModel.addElement(new MenuItem("Update Production", MenuItemType.UPDATE_PRODUCTION));
+        }
+
         // Logout
         listModel.addElement(new MenuItem("Log out", MenuItemType.LOGOUT));
 
@@ -243,6 +248,9 @@ public class GUIMainFrame extends JFrame {
                         break;
                     case REMOVE_PRODUCTION:
                         new GUIRemoveProductionPopup();
+                        break;
+                    case UPDATE_PRODUCTION:
+                        new GUIUpdateProductionPopup();
                         break;
                     case LOGOUT:
                         for (Window window : getWindows()) {
