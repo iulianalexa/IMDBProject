@@ -65,17 +65,7 @@ public class GUIMainFrame extends JFrame {
         JList<Production> productionsJList = new JList<>(productionsArr);
 
         // Create a custom cell renderer to only display production titles
-        productionsJList.setCellRenderer(new DefaultListCellRenderer() {
-            @Override
-            public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-                JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-                if (value instanceof Production production) {
-                    label.setText(production.getTitle());
-                }
-
-                return label;
-            }
-        });
+        productionsJList.setCellRenderer(new ProductionCellRenderer());
 
         // Create a scroll pane for the JList
         JScrollPane scrollPane = new JScrollPane(productionsJList);
@@ -168,6 +158,7 @@ public class GUIMainFrame extends JFrame {
         VIEW_REQUESTS,
         VIEW_STAFF_REQUESTS,
         ADD_PRODUCTION,
+        REMOVE_PRODUCTION,
         LOGOUT,
         EXIT
     }
@@ -216,6 +207,10 @@ public class GUIMainFrame extends JFrame {
             listModel.addElement(new MenuItem("Add Production", MenuItemType.ADD_PRODUCTION));
         }
 
+        if (user.getAccountType() == AccountType.CONTRIBUTOR || user.getAccountType() == AccountType.ADMIN) {
+            listModel.addElement(new MenuItem("Remove Production", MenuItemType.REMOVE_PRODUCTION));
+        }
+
         // Logout
         listModel.addElement(new MenuItem("Log out", MenuItemType.LOGOUT));
 
@@ -245,6 +240,9 @@ public class GUIMainFrame extends JFrame {
                         break;
                     case ADD_PRODUCTION:
                         new GUIProductionPopup(null);
+                        break;
+                    case REMOVE_PRODUCTION:
+                        new GUIRemoveProductionPopup();
                         break;
                     case LOGOUT:
                         for (Window window : getWindows()) {
@@ -582,3 +580,14 @@ public class GUIMainFrame extends JFrame {
     }
 }
 
+class ProductionCellRenderer extends DefaultListCellRenderer {
+    @Override
+    public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+        JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+        if (value instanceof Production production) {
+            label.setText(production.getTitle());
+        }
+
+        return label;
+    }
+}

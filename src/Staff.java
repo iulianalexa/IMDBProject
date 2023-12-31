@@ -60,12 +60,7 @@ abstract public class Staff<T extends Comparable<Object>> extends User<T> implem
     }
 
     @Override
-    public void removeProductionSystem(String name) {
-        Production production = IMDB.getInstance().searchForProduction(name);
-        if (production == null) {
-            return;
-        }
-
+    public void removeProductionSystem(Production production) {
         if (production instanceof Movie movie) {
             IMDB.getInstance().removeMovie(movie);
         } else if (production instanceof Series series) {
@@ -86,12 +81,7 @@ abstract public class Staff<T extends Comparable<Object>> extends User<T> implem
     }
 
     @Override
-    public void removeActorSystem(String name) {
-        Actor actor = IMDB.getInstance().searchForActor(name);
-        if (actor == null) {
-            return;
-        }
-
+    public void removeActorSystem(Actor actor) {
         @SuppressWarnings("unchecked")
         SortedSet<Actor> actorSortedSet = (SortedSet<Actor>) contributions;
         actorSortedSet.remove(actor);

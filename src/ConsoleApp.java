@@ -544,8 +544,8 @@ public class ConsoleApp {
                             break;
                         }
 
-                        staff.removeProductionSystem(ownedProductions.get(index).getTitle());
-
+                        staff.removeProductionSystem(ownedProductions.get(index));
+                        System.out.println("Production removed.");
                         break;
                     case "1":
                         ArrayList<Actor> ownedActors = new ArrayList<>();
@@ -574,8 +574,8 @@ public class ConsoleApp {
                             break;
                         }
 
-                        staff.removeActorSystem(ownedActors.get(index).getName());
-
+                        staff.removeActorSystem(ownedActors.get(index));
+                        System.out.println("Removed actor.");
                         break;
                     default:
                         throw new InvalidCommandException("Invalid choice. Please retry.");
