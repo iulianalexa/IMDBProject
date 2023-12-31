@@ -57,6 +57,13 @@ abstract public class Staff<T extends Comparable<Object>> extends User<T> implem
         SortedSet<Actor> actorSortedSet = (SortedSet<Actor>) contributions;
         actorSortedSet.add(a);
         this.awardExperience(new NewContributionExperienceStrategy());
+
+        for (Performance performance : a.getPerformances()) {
+            Production production = IMDB.getInstance().searchForProduction(performance.getTitle());
+            if (production != null) {
+                production.addActor(a);
+            }
+        }
     }
 
     @Override
@@ -86,6 +93,14 @@ abstract public class Staff<T extends Comparable<Object>> extends User<T> implem
         SortedSet<Actor> actorSortedSet = (SortedSet<Actor>) contributions;
         actorSortedSet.remove(actor);
         IMDB.getInstance().removeActor(actor);
+
+        for (Production production : IMDB.getInstance().getProductionList()) {
+            for (Actor productionActor : production.getActors()) {
+                if (productionActor == actor) {
+                    production.removeActor(actor);
+                }
+            }
+        }
     }
 
     @Override

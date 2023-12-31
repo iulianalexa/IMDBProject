@@ -28,7 +28,7 @@ public class Actor implements Comparable<Object> {
     }
 
     private String name, biography;
-    private final List<Performance> performances = new ArrayList<>();
+    private List<Performance> performances = new ArrayList<>();
 
     public String getName() {
         return this.name;
@@ -40,6 +40,10 @@ public class Actor implements Comparable<Object> {
 
     public void addPerformance(String title, ProductionType type) {
         this.performances.add(new Performance(title, type));
+    }
+
+    public void setPerformances(List<Performance> performances) {
+        this.performances = performances;
     }
 
     @Override

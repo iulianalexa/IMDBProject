@@ -65,7 +65,7 @@ public class GUIMainFrame extends JFrame {
         JList<Production> productionsJList = new JList<>(productionsArr);
 
         // Create a custom cell renderer to only display production titles
-        productionsJList.setCellRenderer(new ProductionCellRenderer());
+        productionsJList.setCellRenderer(new ProductionListCellRenderer());
 
         // Create a scroll pane for the JList
         JScrollPane scrollPane = new JScrollPane(productionsJList);
@@ -160,6 +160,11 @@ public class GUIMainFrame extends JFrame {
         ADD_PRODUCTION,
         REMOVE_PRODUCTION,
         UPDATE_PRODUCTION,
+        ADD_ACTOR,
+        REMOVE_ACTOR,
+        UPDATE_ACTOR,
+        REMOVE_USER,
+        ADD_USER,
         LOGOUT,
         EXIT
     }
@@ -216,6 +221,26 @@ public class GUIMainFrame extends JFrame {
             listModel.addElement(new MenuItem("Update Production", MenuItemType.UPDATE_PRODUCTION));
         }
 
+        if (user.getAccountType() == AccountType.CONTRIBUTOR || user.getAccountType() == AccountType.ADMIN) {
+            listModel.addElement(new MenuItem("Add Actor", MenuItemType.ADD_ACTOR));
+        }
+
+        if (user.getAccountType() == AccountType.CONTRIBUTOR || user.getAccountType() == AccountType.ADMIN) {
+            listModel.addElement(new MenuItem("Remove Actor", MenuItemType.REMOVE_ACTOR));
+        }
+
+        if (user.getAccountType() == AccountType.CONTRIBUTOR || user.getAccountType() == AccountType.ADMIN) {
+            listModel.addElement(new MenuItem("Update Actor", MenuItemType.UPDATE_ACTOR));
+        }
+
+        if (user.getAccountType() == AccountType.ADMIN) {
+            listModel.addElement(new MenuItem("Remove User", MenuItemType.REMOVE_USER));
+        }
+
+        if (user.getAccountType() == AccountType.ADMIN) {
+            listModel.addElement(new MenuItem("Add User", MenuItemType.ADD_USER));
+        }
+
         // Logout
         listModel.addElement(new MenuItem("Log out", MenuItemType.LOGOUT));
 
@@ -247,10 +272,25 @@ public class GUIMainFrame extends JFrame {
                         new GUIProductionPopup(null);
                         break;
                     case REMOVE_PRODUCTION:
-                        new GUIRemoveProductionPopup();
+                        new GUIRemoveProductionActorUserPopup<>(Production.class);
                         break;
                     case UPDATE_PRODUCTION:
-                        new GUIUpdateProductionPopup();
+                        new GUIUpdateProductionActorPopup<>(Production.class);
+                        break;
+                    case ADD_ACTOR:
+                        new GUIActorPopup(null);
+                        break;
+                    case REMOVE_ACTOR:
+                        new GUIRemoveProductionActorUserPopup<>(Actor.class);
+                        break;
+                    case UPDATE_ACTOR:
+                        new GUIUpdateProductionActorPopup<>(Actor.class);
+                        break;
+                    case REMOVE_USER:
+                        new GUIRemoveProductionActorUserPopup<>(User.class);
+                        break;
+                    case ADD_USER:
+                        new GUIUserPopup();
                         break;
                     case LOGOUT:
                         for (Window window : getWindows()) {
@@ -588,7 +628,7 @@ public class GUIMainFrame extends JFrame {
     }
 }
 
-class ProductionCellRenderer extends DefaultListCellRenderer {
+class ProductionListCellRenderer extends DefaultListCellRenderer {
     @Override
     public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
         JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);

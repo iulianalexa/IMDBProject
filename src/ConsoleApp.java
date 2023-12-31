@@ -1238,19 +1238,19 @@ public class ConsoleApp {
                     throw new InvalidCommandException("Invalid choice. Please retry.");
                 }
                 System.out.println("For optional fields, type nothing to skip.");
-                System.out.print("Name*: ");
-                String userFullName = scanner.nextLine();
+                System.out.print("Name: ");
+                String userFullName = scanner.nextLine().strip();
                 System.out.print("Email*: ");
-                String email = scanner.nextLine();
+                String email = scanner.nextLine().strip();
                 System.out.print("Country: ");
-                String country = scanner.nextLine();
+                String country = scanner.nextLine().strip();
                 System.out.print("Gender: ");
-                String gender = scanner.nextLine();
+                String gender = scanner.nextLine().strip();
                 System.out.print("Birth date: ");
-                String birthDate = scanner.nextLine();
+                String birthDate = scanner.nextLine().strip();
                 System.out.print("Age: ");
                 int age = -1;
-                String ageToParse = scanner.nextLine();
+                String ageToParse = scanner.nextLine().strip();
                 if (!ageToParse.isEmpty()) {
                     try {
                         // why do we still need to input the age if we have a birthdate?...
@@ -1261,13 +1261,7 @@ public class ConsoleApp {
                 }
 
                 // Create credentials
-                int usernameOffset = 0;
-                String usernameBase = userFullName.replace(" ", "_");
-                String username;
-                do {
-                    username = usernameOffset == 0 ? usernameBase : String.format("%s_%d", usernameBase, usernameOffset);
-                    usernameOffset++;
-                } while (IMDB.getInstance().getUser(username) != null);
+                String username =  RandomPasswordGenerator.generateUsername(userFullName);
                 String password = RandomPasswordGenerator.generate(20);
 
                 User.Information.Credentials credentials = null;
