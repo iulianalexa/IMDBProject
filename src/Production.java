@@ -1,26 +1,30 @@
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 abstract public class Production implements Comparable<Object> {
     private String title, plot;
     private List<String> directors = new ArrayList<>();
 
     // Users that have rated this production at some point
-    private List<User<?>> awardedUsers = new ArrayList<>();
+    private List<String> awardedUsernames = new ArrayList<>();
 
+    @JsonSerialize(using = CustomProductionActorListSerializer.class)
     @JsonDeserialize(using = CustomProductionDeserializer.class)
     private List<Actor> actors = new ArrayList<>();
     private List<Genre> genres = new ArrayList<>();
     private List<Rating> ratings = new ArrayList<>();
     private Double averageRating = 0.0;
+    private String trailerLink = null;
     private ProductionType type;
 
     public Integer getReviewCount() {
@@ -46,6 +50,7 @@ abstract public class Production implements Comparable<Object> {
     public List<Rating> getRatings() {
         List<Rating> newRatings = new ArrayList<>(ratings);
         newRatings.sort(null);
+        newRatings = newRatings.reversed();
 
         return newRatings;
     }
@@ -107,6 +112,14 @@ abstract public class Production implements Comparable<Object> {
         this.directors = directors;
     }
 
+    public void setTrailerLink(String trailerLink) {
+        this.trailerLink = trailerLink;
+    }
+
+    public String getTrailerLink() {
+        return this.trailerLink;
+    }
+
     public void setActors(List<Actor> actors) {
         this.actors = actors;
     }
@@ -152,18 +165,18 @@ abstract public class Production implements Comparable<Object> {
         this.updateScore();
     }
 
-    public List<User<?>> getAwardedUsers() {
-        return new ArrayList<>(awardedUsers);
+    public List<String> getAwardedUsernames() {
+        return new ArrayList<>(awardedUsernames);
     }
 
     public void addAwardedUser(User<?> user) {
-        awardedUsers.add(user);
+        awardedUsernames.add(user.getUsername());
     }
 
     public void copyNonUpdatableInformationOver(Production production) {
         production.averageRating = this.averageRating;
         production.ratings = this.ratings;
-        production.awardedUsers = this.awardedUsers;
+        production.awardedUsernames = this.awardedUsernames;
     }
 }
 
@@ -184,5 +197,17 @@ class CustomProductionDeserializer extends JsonDeserializer<List<Actor>> {
         }
 
         return actors;
+    }
+}
+
+class CustomProductionActorListSerializer extends JsonSerializer<List<Actor>> {
+    @Override
+    public void serialize(List<Actor> actors, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+        List<String> actorNames = new ArrayList<>();
+        for (Actor actor : actors) {
+            actorNames.add(actor.getName());
+        }
+
+        jsonGenerator.writeObject(actorNames);
     }
 }

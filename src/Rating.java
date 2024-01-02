@@ -1,16 +1,16 @@
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.JsonDeserializer;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class Rating implements Subject, Comparable<Rating> {
     private String username, comment;
     private Integer rating;
 
-    private final Map<String, ArrayList<Observer>> observers = new HashMap<>();
+    private final Map<String, ArrayList<String>> observerUsernames = new HashMap<>();
 
     @JsonCreator
     public Rating() {}
@@ -36,31 +36,34 @@ public class Rating implements Subject, Comparable<Rating> {
 
     @Override
     public void subscribe(String observerType, Observer observer) {
-        if (!observers.containsKey(observerType)) {
-            observers.put(observerType, new ArrayList<>());
+        if (!observerUsernames.containsKey(observerType)) {
+            observerUsernames.put(observerType, new ArrayList<>());
         }
 
-        ArrayList<Observer> subObservers = observers.get(observerType);
-        subObservers.add(observer);
+        ArrayList<String> subObservers = observerUsernames.get(observerType);
+        subObservers.add(((User<?>) observer).getUsername());
     }
 
     @Override
     public void unsubscribe(String observerType, Observer observer) {
-        ArrayList<Observer> subObservers = observers.get(observerType);
+        ArrayList<String> subObservers = observerUsernames.get(observerType);
         if (subObservers != null) {
-            subObservers.remove(observer);
+            subObservers.remove(((User<?>) observer).getUsername());
             if (subObservers.isEmpty()) {
-                observers.remove(observerType);
+                observerUsernames.remove(observerType);
             }
         }
     }
 
     @Override
     public void sendNotification(String notificationType, String message) {
-        ArrayList<Observer> subObservers = observers.get(notificationType);
-        if (subObservers != null) {
-            for (Observer observer : subObservers) {
-                observer.update(message);
+        ArrayList<String> subObserverUsernames = observerUsernames.get(notificationType);
+        if (subObserverUsernames != null) {
+            for (String username : subObserverUsernames) {
+                Observer observer = IMDB.getInstance().getUser(username);
+                if (observer != null) {
+                    observer.update(message);
+                }
             }
         }
     }

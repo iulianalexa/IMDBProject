@@ -2,6 +2,9 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -305,6 +308,7 @@ public class GUIMainFrame extends JFrame {
                         break;
                     case EXIT:
                         dispose();
+                        exit();
                         System.exit(0);
                         break;
                 }
@@ -448,6 +452,22 @@ public class GUIMainFrame extends JFrame {
         buttonPanel.add(backButton);
         buttonPanel.add(favoritesButton);
         buttonPanel.add(addReviewButton);
+
+        try {
+            if (production.getTrailerLink() != null) {
+                URI uri = new URI(production.getTrailerLink());
+                JButton trailerButton = new JButton("Watch Trailer");
+                buttonPanel.add(trailerButton);
+
+                trailerButton.addActionListener(e -> {
+                    try {
+                        Desktop.getDesktop().browse(uri);
+                    } catch (IOException ex) {
+                        showErrorDialog("Sorry, an error occurred and the trailer could not be shown.");
+                    }
+                });
+            }
+        } catch (URISyntaxException ignored) {}
 
         currentPanel = addToNorth(currentPanel, buttonPanel);
 
@@ -625,6 +645,19 @@ public class GUIMainFrame extends JFrame {
 
     public int getMinimumReviewCount() {
         return this.minimumReviewCount;
+    }
+
+    public static void exit() {
+        IMDB.getInstance().save();
+    }
+
+    private static void showErrorDialog(String message) {
+        JOptionPane.showMessageDialog(
+                null,
+                message,
+                "Error",
+                JOptionPane.ERROR_MESSAGE
+        );
     }
 }
 

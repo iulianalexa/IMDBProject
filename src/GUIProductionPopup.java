@@ -72,6 +72,12 @@ public class GUIProductionPopup extends JFrame {
         descriptionPanel.add(descriptionLabel);
         descriptionPanel.add(scrollPane);
 
+        JPanel trailerPanel = new JPanel(new GridLayout(1, 2));
+        JLabel trailerLabel = new JLabel("Trailer link:");
+        JTextField trailerField = new JTextField(25);
+        trailerPanel.add(trailerLabel);
+        trailerPanel.add(trailerField);
+
         JPanel typePanel = new JPanel(new GridLayout(1, 2));
         JLabel typeLabel = new JLabel("Type:");
         JComboBox<ProductionType> typeComboBox = new JComboBox<>(ProductionType.values());
@@ -94,6 +100,7 @@ public class GUIProductionPopup extends JFrame {
 
         panel.add(titlePanel);
         panel.add(descriptionPanel);
+        panel.add(trailerPanel);
         panel.add(typePanel);
         panel.add(augmentedPanel);
         panel.add(buttonPanel);
@@ -115,6 +122,7 @@ public class GUIProductionPopup extends JFrame {
             // Sanity checks
             String title = titleField.getText();
             String description = descriptionTextArea.getText();
+            String trailerLink = trailerField.getText();
             int releaseYear;
 
             if (title.isEmpty()) {
@@ -124,6 +132,10 @@ public class GUIProductionPopup extends JFrame {
 
             if (description.isEmpty()) {
                 description = null;
+            }
+
+            if (trailerLink.isEmpty()) {
+                trailerLink = null;
             }
 
             try {
@@ -166,6 +178,7 @@ public class GUIProductionPopup extends JFrame {
             newProduction.setDirectors(directors);
             newProduction.setActors(actors);
             newProduction.setGenres(genres);
+            newProduction.setTrailerLink(trailerLink);
 
             if (production == null) {
                 staff.addProductionSystem(newProduction);
@@ -217,6 +230,7 @@ public class GUIProductionPopup extends JFrame {
             // Set appropriate fields
             titleField.setText(production.getTitle());
             descriptionTextArea.setText(production.getPlot());
+            trailerField.setText(production.getTrailerLink());
             directors.addAll(production.getDirectors());
             genres.addAll(production.getGenres());
             actors.addAll(production.getActors());

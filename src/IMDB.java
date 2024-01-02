@@ -1,6 +1,10 @@
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.File;
@@ -17,7 +21,7 @@ public class IMDB {
     private final List<Admin<?>> admins = new ArrayList<>();
 
     private SortedSet<Actor> actors = new TreeSet<>();
-    private final List<Request> requestList = new ArrayList<>();
+    private List<Request> requestList = new ArrayList<>();
     private final List<Movie> movieList = new ArrayList<>();
     private final List<Series> seriesList = new ArrayList<>();
 
@@ -88,9 +92,12 @@ public class IMDB {
         this.actors.remove(actor);
     }
 
-    private void readProductions() throws IOException {
+    private void readProductions(String filepath) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
-        List<JsonNode> jsonNodeList = mapper.readValue(new File("input/production.json"), new TypeReference<>() {});
+        mapper.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.NONE);
+        mapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
+
+        List<JsonNode> jsonNodeList = mapper.readValue(new File(filepath), new TypeReference<>() {});
         for (JsonNode jsonNode : jsonNodeList) {
             ProductionType type = mapper.treeToValue(jsonNode.get("type"), ProductionType.class);
             Production production = null;
@@ -115,9 +122,11 @@ public class IMDB {
         }
     }
 
-    private void readActors() throws IOException {
+    private void readActors(String filepath) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
-        this.actors = mapper.readValue(new File("input/actors.json"), new TypeReference<>() {});
+        mapper.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.NONE);
+        mapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
+        this.actors = mapper.readValue(new File(filepath), new TypeReference<>() {});
     }
 
     public User<?> getCurrentUser() {
@@ -136,11 +145,14 @@ public class IMDB {
         this.currentUser = currentUser;
     }
 
-    private int readUsers() throws IOException {
+    private int readUsers(String filepath) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
+        mapper.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.NONE);
+        mapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
+
         List<User.UnknownUser> unknownUserList;
         try {
-            unknownUserList = mapper.readValue(new File("input/accounts.json"), new TypeReference<>() {});
+            unknownUserList = mapper.readValue(new File(filepath), new TypeReference<>() {});
         } catch (JsonMappingException e) {
             if (e.getCause() instanceof InformationIncompleteException e1) {
                 System.out.println(e1.getMessage());
@@ -167,17 +179,67 @@ public class IMDB {
         return 0;
     }
 
-    private void readRequests() throws IOException {
+    private void readRequests(String filepath) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
-        List<Request> requests = mapper.readValue(new File("input/requests.json"), new TypeReference<>() {});
-        for (Request request : requests) {
-            User<?> author = getUser(request.getAuthorUsername());
-            if (!(author instanceof RequestsManager requestsManager)) {
-                continue;
-            }
+        mapper.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.NONE);
+        mapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
 
-            requestsManager.createRequest(request);
+        this.requestList = mapper.readValue(new File(filepath), new TypeReference<>() {});
+
+        for (Request request : requestList) {
+            User<?> assignedUser = getUser(request.getAssignedUsername());
+
+            if ((request.getType() == RequestType.MOVIE_ISSUE || request.getType() == RequestType.ACTOR_ISSUE) && assignedUser instanceof Staff<?> assignedStaff) {
+                assignedStaff.addRequest(request);
+            } else {
+                RequestsHolder.addAdminRequest(request);
+            }
         }
+    }
+
+    private void writeProductions(String filepath) throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.NONE);
+        mapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
+
+        mapper.writeValue(new File(filepath), getProductionList());
+    }
+
+    private void writeActors(String filepath) throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.NONE);
+        mapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
+
+        mapper.writeValue(new File(filepath), getActors());
+    }
+
+    private void writeRequests(String filepath) throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.NONE);
+        mapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
+
+        mapper.writeValue(new File(filepath), getRequestList());
+    }
+
+    private void writeUsers(String filepath) throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.NONE);
+        mapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
+
+        List<User.UnknownUser> unknownUsers = new ArrayList<>();
+        for (Regular<?> regular : regulars) {
+            unknownUsers.add(new User.UnknownUser(regular));
+        }
+
+        for (Contributor<?> contributor : contributors) {
+            unknownUsers.add(new User.UnknownUser(contributor));
+        }
+
+        for (Admin<?> admin : admins) {
+            unknownUsers.add(new User.UnknownUser(admin));
+        }
+
+        mapper.writeValue(new File(filepath), unknownUsers);
     }
 
     User<?> getUser(String username) {
@@ -236,14 +298,14 @@ public class IMDB {
     public void run() {
         // Load input data
         try {
-            this.readActors();
-            this.readProductions();
-            if (this.readUsers() < 0) {
+            this.readActors("input/actors.json");
+            this.readProductions("input/production.json");
+            if (this.readUsers("input/accounts.json") < 0) {
                 System.out.println("Reading the accounts file failed!");
                 return;
             }
 
-            this.readRequests();
+            this.readRequests("input/requests.json");
         } catch (IOException e) {
             System.out.println("Invalid input files.");
             System.err.println(e.getMessage());
@@ -254,6 +316,18 @@ public class IMDB {
             ConsoleApp.runConsole();
         } else {
             new GUIAuthFrame();
+        }
+    }
+
+    public void save() {
+        try {
+            this.writeProductions("input/production.json");
+            this.writeActors("input/actors.json");
+            this.writeRequests("input/requests.json");
+            this.writeUsers("input/accounts.json");
+        } catch (IOException e) {
+            System.out.println("Cannot write to the output files!");
+            e.printStackTrace();
         }
     }
 

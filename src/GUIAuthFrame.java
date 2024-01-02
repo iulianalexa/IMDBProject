@@ -1,4 +1,6 @@
 import javax.swing.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 public class GUIAuthFrame extends JFrame {
     private final JTextField usernameField;
@@ -36,7 +38,13 @@ public class GUIAuthFrame extends JFrame {
             if (user != null && user.checkPassword(password)) {
                 IMDB.getInstance().setCurrentUser(user);
                 dispose();
-                new GUIMainFrame();
+                JFrame mainFrame = new GUIMainFrame();
+                mainFrame.addWindowListener(new WindowAdapter() {
+                    @Override
+                    public void windowClosing(WindowEvent e) {
+                        GUIMainFrame.exit();
+                    }
+                });
             } else {
                 JOptionPane.showMessageDialog(this, "Login failed. Invalid credentials.");
             }

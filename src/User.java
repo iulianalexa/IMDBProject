@@ -1,7 +1,12 @@
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -39,10 +44,9 @@ abstract public class User<T extends Comparable<Object>> implements Observer {
         }
     }
 
-    @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
     public static class UnknownUser {
         private String username;
-        private final int experience = 0;
+        private int experience = 0;
         private Information information;
         private AccountType userType;
         private final List<String> productionsContribution = new ArrayList<>();
@@ -51,7 +55,7 @@ abstract public class User<T extends Comparable<Object>> implements Observer {
         private final List<String> favoriteProductions = new ArrayList<>();
         @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
         private final List<String> favoriteActors = new ArrayList<>();
-        private final List<String> notifications = new ArrayList<>();
+        private List<String> notifications = new ArrayList<>();
 
         public List<String> getProductionsContribution() {
             return productionsContribution;
@@ -73,12 +77,38 @@ abstract public class User<T extends Comparable<Object>> implements Observer {
             this.information = information;
             this.userType = userType;
         }
+
+        public UnknownUser(User<?> user) {
+            this();
+            this.username = user.username;
+            this.experience = user.experience;
+            this.information = user.information;
+            this.userType = user.accountType;
+
+            if (user instanceof Staff<?> staff) {
+                for (Object contribution : staff.getContributions()) {
+                    if (contribution instanceof Production production) {
+                        this.productionsContribution.add(production.getTitle());
+                    } else if (contribution instanceof Actor actor) {
+                        this.actorsContribution.add(actor.getName());
+                    }
+                }
+            }
+
+            for (Object favorite : user.favorites) {
+                if (favorite instanceof Production production) {
+                    this.favoriteProductions.add(production.getTitle());
+                } else if (favorite instanceof Actor actor) {
+                    this.favoriteActors.add(actor.getName());
+                }
+            }
+
+            this.notifications = user.getNotificationList();
+        }
     }
 
-    @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
     @JsonDeserialize(builder = Information.InformationBuilder.class)
     public static class Information {
-        @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
         public static class Credentials {
             private String email, password;
 
@@ -92,6 +122,8 @@ abstract public class User<T extends Comparable<Object>> implements Observer {
 
         private Credentials credentials;
         private String name, country;
+
+        @JsonSerialize(using = LocalDateCustomSerializer.class)
         LocalDateTime birthDate;
         private String gender;
         private Integer age;
@@ -105,6 +137,7 @@ abstract public class User<T extends Comparable<Object>> implements Observer {
             this.birthDate = birthDate;
         }
 
+        @JsonAutoDetect(creatorVisibility = JsonAutoDetect.Visibility.ANY, setterVisibility = JsonAutoDetect.Visibility.ANY)
         @JsonPOJOBuilder(withPrefix = "")
         public static class InformationBuilder {
             private Credentials credentials;
@@ -221,5 +254,12 @@ abstract public class User<T extends Comparable<Object>> implements Observer {
     @Override
     public void update(String message) {
         notificationList.add(message);
+    }
+}
+
+class LocalDateCustomSerializer extends JsonSerializer<LocalDateTime> {
+    @Override
+    public void serialize(LocalDateTime localDateTime, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+        jsonGenerator.writeString(localDateTime.toLocalDate().format(DateTimeFormatter.ISO_LOCAL_DATE));
     }
 }

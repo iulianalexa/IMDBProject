@@ -1,6 +1,7 @@
 import javax.swing.*;
 import java.awt.*;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.concurrent.Flow;
 
 public class GUIRequestPopup extends JFrame {
@@ -55,17 +56,23 @@ public class GUIRequestPopup extends JFrame {
         JPanel panel0 = new JPanel(new BorderLayout());
         JPanel panel1 = new JPanel(new BorderLayout());
 
-        JPanel usernamesPanel = new JPanel(new GridLayout(2, 2));
+        JPanel usernamesPanel = new JPanel(new GridLayout(3, 2));
         if (request != null) {
             JLabel authorUsernameLabel = new JLabel("Author:");
             JLabel assignedUsernameLabel = new JLabel("Assigned:");
+            JLabel timestampLabel = new JLabel("Timestamp:");
             JTextField authorUsernameField = new JTextField();
             authorUsernameField.setEditable(false);
             authorUsernameField.setText(request.getAuthorUsername());
             JTextField assignedUsernameField = new JTextField();
             assignedUsernameField.setEditable(false);
             assignedUsernameField.setText(request.getAssignedUsername());
+            JTextField timestampField = new JTextField();
+            timestampField.setEditable(false);
+            timestampField.setText(request.getCreatedDate().format(DateTimeFormatter.ISO_DATE_TIME));
 
+            usernamesPanel.add(timestampLabel);
+            usernamesPanel.add(timestampField);
             usernamesPanel.add(authorUsernameLabel);
             usernamesPanel.add(authorUsernameField);
             usernamesPanel.add(assignedUsernameLabel);
@@ -176,7 +183,9 @@ public class GUIRequestPopup extends JFrame {
             RequestType requestType = (RequestType) comboBox.getSelectedItem();
             switch (requestType) {
                 case ACTOR_ISSUE, MOVIE_ISSUE:
-                    textField.setEditable(true);
+                    if (request == null) {
+                        textField.setEditable(true);
+                    }
                     break;
                 case DELETE_ACCOUNT, OTHERS:
                     textField.setEditable(false);

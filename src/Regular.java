@@ -65,7 +65,7 @@ public class Regular<T extends Comparable<Object>> extends User<T> implements Re
                 production.getTitle(), score
         ));
 
-        if (!production.getAwardedUsers().contains(this)) {
+        if (!production.getAwardedUsernames().contains(getUsername())) {
             production.addAwardedUser(this);
             this.awardExperience(new NewRatingExperienceStrategy());
         }

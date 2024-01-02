@@ -1421,6 +1421,7 @@ public class ConsoleApp {
                     String exitChoice = scanner.nextLine();
                     switch (exitChoice) {
                         case "0":
+                            IMDB.getInstance().save();
                             break commandLoop;
                         case "1":
                             IMDB.getInstance().getCurrentUser().logout();

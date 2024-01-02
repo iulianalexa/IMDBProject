@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="EntryPointsManager">
-    <list size="2">
-      <item index="0" class="java.lang.String" itemvalue="com.fasterxml.jackson.annotation.JsonAnySetter" />
-      <item index="1" class="java.lang.String" itemvalue="com.fasterxml.jackson.annotation.JsonCreator" />
+    <list size="3">
+      <item index="0" class="java.lang.String" itemvalue="com.fasterxml.jackson.annotation.JsonAnyGetter" />
+      <item index="1" class="java.lang.String" itemvalue="com.fasterxml.jackson.annotation.JsonAnySetter" />
+      <item index="2" class="java.lang.String" itemvalue="com.fasterxml.jackson.annotation.JsonCreator" />
     </list>
     <writeAnnotations>
       <writeAnnotation name="com.fasterxml.jackson.databind.annotation.JsonDeserialize" />
+      <writeAnnotation name="com.fasterxml.jackson.annotation.JsonIgnoreProperties" />
     </writeAnnotations>
   </component>
   <component name="ProjectRootManager" version="2" languageLevel="JDK_21" default="true" project-jdk-name="temurin-21" project-jdk-type="JavaSDK">
