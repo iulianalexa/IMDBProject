@@ -34,14 +34,6 @@ public class GUIRemoveProductionActorUserPopup<T> extends JFrame {
         return actorList;
     }
 
-    private List<User<?>> getUserList() {
-        List<User<?>> users = new ArrayList<>(IMDB.getInstance().getRegulars());
-        users.addAll(IMDB.getInstance().getContributors());
-        users.addAll(IMDB.getInstance().getAdmins());
-
-        return users;
-    }
-
     public GUIRemoveProductionActorUserPopup(Class<T> tClass) {
         if (IMDB.getInstance().getCurrentUser() instanceof Staff<?> staff1) {
             this.staff = staff1;
@@ -63,7 +55,7 @@ public class GUIRemoveProductionActorUserPopup<T> extends JFrame {
             itemList = actorList;
         } else if (tClass.isAssignableFrom(User.class)) {
             @SuppressWarnings("unchecked")
-            List<T> userList = (List<T>) getUserList();
+            List<T> userList = (List<T>) IMDB.getInstance().getUsers();
             itemJList.setCellRenderer(new UserListCellRenderer());
             itemList = userList;
         } else {
@@ -86,7 +78,6 @@ public class GUIRemoveProductionActorUserPopup<T> extends JFrame {
         removeButton.addActionListener(e -> {
             if (!itemJList.isSelectionEmpty()) {
                 T selectedItem = itemJList.getSelectedValue();
-                itemDefaultListModel.removeElement(selectedItem);
 
                 if (tClass.isAssignableFrom(Production.class)) {
                     Production selectedProduction = (Production) selectedItem;
@@ -97,9 +88,16 @@ public class GUIRemoveProductionActorUserPopup<T> extends JFrame {
                 } else if (tClass.isAssignableFrom(User.class)) {
                     User<?> selectedUser = (User<?>) selectedItem;
                     if (staff instanceof Admin<?> admin) {
-                        admin.removeUser(selectedUser);
+                        try {
+                            admin.removeUser(selectedUser);
+                        } catch (InvalidCommandException ex) {
+                            showErrorDialog(ex.getMessage());
+                            return;
+                        }
                     }
                 }
+
+                itemDefaultListModel.removeElement(selectedItem);
             }
         });
     }
@@ -115,6 +113,15 @@ public class GUIRemoveProductionActorUserPopup<T> extends JFrame {
         panel.add(buttonPanel);
 
         return panel;
+    }
+
+    private static void showErrorDialog(String message) {
+        JOptionPane.showMessageDialog(
+                null,
+                message,
+                "Error",
+                JOptionPane.ERROR_MESSAGE
+        );
     }
 }
 

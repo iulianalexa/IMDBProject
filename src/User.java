@@ -172,7 +172,11 @@ abstract public class User<T extends Comparable<Object>> implements Observer {
 
             public InformationBuilder birthDate(String birthDate) throws InvalidInformationException {
                 try {
-                    this.birthDate = LocalDate.parse(birthDate, DateTimeFormatter.ISO_LOCAL_DATE).atStartOfDay();
+                    if (birthDate == null) {
+                        this.birthDate = null;
+                    } else {
+                        this.birthDate = LocalDate.parse(birthDate, DateTimeFormatter.ISO_LOCAL_DATE).atStartOfDay();
+                    }
                 } catch (DateTimeParseException e) {
                     throw new InvalidInformationException(e.getMessage());
                 }
@@ -260,6 +264,10 @@ abstract public class User<T extends Comparable<Object>> implements Observer {
 class LocalDateCustomSerializer extends JsonSerializer<LocalDateTime> {
     @Override
     public void serialize(LocalDateTime localDateTime, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
-        jsonGenerator.writeString(localDateTime.toLocalDate().format(DateTimeFormatter.ISO_LOCAL_DATE));
+        if (localDateTime == null) {
+            jsonGenerator.writeNull();
+        } else {
+            jsonGenerator.writeString(localDateTime.toLocalDate().format(DateTimeFormatter.ISO_LOCAL_DATE));
+        }
     }
 }

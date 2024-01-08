@@ -9,7 +9,11 @@ public class Admin<T extends Comparable<Object>> extends Staff<T> {
         IMDB.getInstance().addUser(user);
     }
 
-    void removeUser(User<?> user) {
+    void removeUser(User<?> user) throws InvalidCommandException {
+        if (user.getUsername().equals(this.getUsername())) {
+            throw new InvalidCommandException("You cannot remove yourself!");
+        }
+
         // Delete ratings
         ArrayList<Production> productions = new ArrayList<>(IMDB.getInstance().getMovieList());
         productions.addAll(IMDB.getInstance().getSeriesList());

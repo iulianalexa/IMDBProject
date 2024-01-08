@@ -16,9 +16,7 @@ public class IMDB {
     private User<?> currentUser = null;
     private boolean noGui = false;
 
-    private final List<Regular<?>> regulars = new ArrayList<>();
-    private final List<Contributor<?>> contributors = new ArrayList<>();
-    private final List<Admin<?>> admins = new ArrayList<>();
+    private final List<User<?>> users = new ArrayList<>();
 
     private SortedSet<Actor> actors = new TreeSet<>();
     private List<Request> requestList = new ArrayList<>();
@@ -29,16 +27,8 @@ public class IMDB {
         return obj;
     }
 
-    public List<Regular<?>> getRegulars() {
-        return new ArrayList<>(regulars);
-    }
-
-    public List<Contributor<?>> getContributors() {
-        return new ArrayList<>(contributors);
-    }
-
-    public List<Admin<?>> getAdmins() {
-        return new ArrayList<>(admins);
+    public List<User<?>> getUsers() {
+        return new ArrayList<>(users);
     }
 
     public List<Request> getRequestList() {
@@ -167,13 +157,7 @@ public class IMDB {
 
         for (User.UnknownUser unknownUser : unknownUserList) {
             User<?> user = UserFactory.factory(unknownUser);
-            switch (Objects.requireNonNull(user).getAccountType()) {
-                case REGULAR -> this.regulars.add((Regular<?>) user);
-
-                case CONTRIBUTOR -> this.contributors.add((Contributor<?>) user);
-
-                case ADMIN -> this.admins.add((Admin<?>) user);
-            }
+            this.users.add(user);
         }
 
         return 0;
@@ -227,25 +211,15 @@ public class IMDB {
         mapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
 
         List<User.UnknownUser> unknownUsers = new ArrayList<>();
-        for (Regular<?> regular : regulars) {
-            unknownUsers.add(new User.UnknownUser(regular));
-        }
-
-        for (Contributor<?> contributor : contributors) {
-            unknownUsers.add(new User.UnknownUser(contributor));
-        }
-
-        for (Admin<?> admin : admins) {
-            unknownUsers.add(new User.UnknownUser(admin));
+        for (User<?> user : users) {
+            unknownUsers.add(new User.UnknownUser(user));
         }
 
         mapper.writeValue(new File(filepath), unknownUsers);
     }
 
     User<?> getUser(String username) {
-        List<User<?>> users = new ArrayList<>(regulars);
-        users.addAll(contributors);
-        users.addAll(admins);
+        List<User<?>> users = getUsers();
 
         for (User<?> user : users) {
             if (user.getUsername().equals(username)) {
@@ -332,28 +306,20 @@ public class IMDB {
     }
 
     public void addUser(User<?> user) {
-        if (user instanceof Regular<?> regular) {
-            this.regulars.add(regular);
-        } else if (user instanceof Contributor<?> contributor) {
-            this.contributors.add(contributor);
-        } else if (user instanceof Admin<?> admin) {
-            this.admins.add(admin);
-        }
+        this.users.add(user);
     }
 
     public void removeUser(User<?> user) {
-        if (user instanceof Regular<?> regular) {
-            this.regulars.remove(regular);
-        } else if (user instanceof Contributor<?> contributor) {
-            this.contributors.remove(contributor);
-        } else if (user instanceof Admin<?> admin) {
-            this.admins.remove(admin);
-        }
+        this.users.remove(user);
     }
 
     public Staff<?> getAdder(Production production) {
-        ArrayList<Staff<?>> staffArrayList = new ArrayList<>(contributors);
-        staffArrayList.addAll(admins);
+        ArrayList<Staff<?>> staffArrayList = new ArrayList<>();
+        for (User<?> user : users) {
+            if (user instanceof Staff<?> staff) {
+                staffArrayList.add(staff);
+            }
+        }
 
         for (Staff<?> staff : staffArrayList) {
             if (staff.contributedTo(production)) {
@@ -365,8 +331,18 @@ public class IMDB {
     }
 
     public Staff<?> getAdder(Actor actor) {
-        ArrayList<Staff<?>> staffArrayList = new ArrayList<>(contributors);
-        staffArrayList.addAll(admins);
+        ArrayList<Staff<?>> staffArrayList = new ArrayList<>();
+        for (User<?> user : users) {
+            if (user instanceof Staff<?> staff) {
+                staffArrayList.add(staff);
+            }
+        }
+
+        for (Staff<?> staff : staffArrayList) {
+            if (staff.contributedTo(actor)) {
+                return staff;
+            }
+        }
 
         for (Staff<?> staff : staffArrayList) {
             if (staff.contributedTo(actor)) {

@@ -1314,9 +1314,7 @@ public class ConsoleApp {
 
                 break;
             case "1":
-                ArrayList<User<?>> userList = new ArrayList<>(IMDB.getInstance().getRegulars());
-                userList.addAll(IMDB.getInstance().getContributors());
-                userList.addAll(IMDB.getInstance().getAdmins());
+                List<User<?>> userList = IMDB.getInstance().getUsers();
 
                 int n = 0;
                 for (User<?> user1 : userList) {
